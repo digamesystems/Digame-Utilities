@@ -23,6 +23,7 @@
 #include <Wire.h> 
 #include "time.h"   // UTC functions
 #include <DS3231.h> // Real Time Clock Library
+                    // https://github.com/NorthernWidget/DS3231
 
 
 // Globals
@@ -226,6 +227,7 @@ bool setRTCTime(){
 
 //*****************************************************************************
 // Get the time from an NTP server and copy it into the external RTC
+// NB: You should be logged into the network before calling this.
 bool synchTimesToNTP(){
   
   debugUART.println("  Getting time from NTP Server... ");
