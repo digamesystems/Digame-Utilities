@@ -47,7 +47,7 @@ GxEPD2_BW<GxEPD2_213_B72, GxEPD2_213_B72::HEIGHT> display3(GxEPD2_213_B72(/*CS=5
 GxEPD2_BW<GxEPD2_213_B73, GxEPD2_213_B73::HEIGHT> display3c(GxEPD2_213_B73(/*CS=5*/ EPD_CS, /*DC=*/EPD_DC, /*RST=*/EPD_RESET, /*BUSY=*/EPD_BUSY)); // 
 
 // ADAFRUIT 2.13" ePaper Display. ssd1680
-GxEPD2_BW<GxEPD2_213_B74, GxEPD2_213_B74::HEIGHT> display3d(GxEPD2_213_B74(/*CS=5*/ EPD_CS, /*DC=*/EPD_DC, /*RST=*/EPD_RESET, /*BUSY=*/EPD_BUSY)); // 
+GxEPD2_BW<GxEPD2_213_B74, GxEPD2_213_B74::HEIGHT> display4(GxEPD2_213_B74(/*CS=5*/ EPD_CS, /*DC=*/EPD_DC, /*RST=*/EPD_RESET, /*BUSY=*/EPD_BUSY)); // 
 
 
 //GxEPD2_GFX& display = display2;
@@ -70,9 +70,15 @@ GxEPD2_GFX &getDisplay()
     return display2;
   }
   
-  if (displayType == "213_SSD1608")
+  if (displayType == "213_SSD1608a")
   {
     return display3;
+    //return display5; 
+  }
+  
+  if (displayType == "213_SSD1608b")
+  {
+    return display4;
     //return display5; 
   }
 
@@ -121,7 +127,7 @@ void initDisplay()
   //}
 
   if (changeDisplayType){
-    DEBUG_PRINTLN("   Enter Display Type 1=154_SSD1608, 2=154_SSD1681, 3=213_SSD1608: ");
+    DEBUG_PRINTLN("   Enter Display Type 1=154_SSD1608, 2=154_SSD1681, 3=213_SSD1608a, 4=213_SSD1608b: ");
     
     while (!(debugUART.available())){
       delay(10); // wait for data from the user... 
@@ -145,8 +151,14 @@ void initDisplay()
     }
 
     if (inString == "3"){
-       displayType = "213_SSD1608";
+       displayType = "213_SSD1608a";
        EEPROM.write(0,3);
+       EEPROM.commit();
+    }
+
+    if (inString == "4"){
+       displayType = "213_SSD1608b";
+       EEPROM.write(0,4);
        EEPROM.commit();
     }
   } 
@@ -157,7 +169,8 @@ void initDisplay()
 
   if (EEPROM.read(0)==1){displayType="154_SSD1608";}
   if (EEPROM.read(0)==2){displayType="154_SSD1681";}
-  if (EEPROM.read(0)==3){displayType="213_SSD1608";}
+  if (EEPROM.read(0)==3){displayType="213_SSD1608a";}
+  if (EEPROM.read(0)==4){displayType="213_SSD1608b";}
   if (EEPROM.read(0)==255){displayType="No Display";}
 
   DEBUG_PRINT(" = ");
@@ -226,10 +239,13 @@ void centerPrint(String s, uint16_t y)
 void displayTitles(String title1, String title2)
 {
   GxEPD2_GFX &display = getDisplay();
-  display.fillScreen(GxEPD_WHITE);
+  //display.fillScreen(GxEPD_WHITE);
   //display.clearScreen();
+  //display.init(0);
+  display.fillScreen(GxEPD_WHITE);
+
   display.setTextSize(3);
-  centerPrint(title1, 5);
+  centerPrint(title1, 1);
   display.setTextSize(2);
   centerPrint(title2, 35);
 }
@@ -309,8 +325,8 @@ void displayTextScreenLarge(String title, String s)
 {
   GxEPD2_GFX &display = getDisplay();
   display.setTextSize(3);
-  centerPrint(title, 10);
-  if (displayType == "213_SSD1608"){
+  centerPrint(title, 5);
+  if ((displayType == "213_SSD1608a")|| (displayType == "213_SSD1608b")){
     centerPrint(s,70);  
   } else { 
     centerPrint(s,90);
@@ -322,10 +338,10 @@ void displayTextScreenLarge(String title, String s)
 void displayTextScreenLarge(String title, String s1, String s2)
 {
   GxEPD2_GFX &display = getDisplay();
+  displayTitles(title,"");
   display.setTextSize(3);
-  centerPrint(title, 10);
-  if (displayType == "213_SSD1608"){
-    centerPrint(s1,55);
+  if ((displayType == "213_SSD1608a")|| (displayType == "213_SSD1608b")){
+    centerPrint(s1,50);
     centerPrint(s2,90);  
   } else { 
     centerPrint(s1,65);
