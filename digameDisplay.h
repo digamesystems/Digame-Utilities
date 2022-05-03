@@ -49,6 +49,9 @@ GxEPD2_BW<GxEPD2_213_B73, GxEPD2_213_B73::HEIGHT> display3c(GxEPD2_213_B73(/*CS=
 // ADAFRUIT 2.13" ePaper Display. ssd1680
 GxEPD2_BW<GxEPD2_213_B74, GxEPD2_213_B74::HEIGHT> display4(GxEPD2_213_B74(/*CS=5*/ EPD_CS, /*DC=*/EPD_DC, /*RST=*/EPD_RESET, /*BUSY=*/EPD_BUSY)); // 
 
+//Waveshare 2.9" display
+GxEPD2_BW<GxEPD2_290_T94_V2, GxEPD2_290_T94_V2::HEIGHT> display5(GxEPD2_290_T94_V2(/*CS=5*/ EPD_CS, /*DC=*/EPD_DC, /*RST=*/EPD_RESET, /*BUSY=*/EPD_BUSY)); // 
+
 
 //GxEPD2_GFX& display = display2;
 String displayType = "154_SSD1681";
@@ -79,6 +82,12 @@ GxEPD2_GFX &getDisplay()
   if (displayType == "213_SSD1608b")
   {
     return display4;
+    //return display5; 
+  }
+
+  if (displayType == "290_Waveshare")
+  {
+    return display5;
     //return display5; 
   }
 
@@ -127,7 +136,7 @@ void initDisplay()
   //}
 
   if (changeDisplayType){
-    DEBUG_PRINTLN("   Enter Display Type 1=154_SSD1608, 2=154_SSD1681, 3=213_SSD1608a, 4=213_SSD1608b: ");
+    DEBUG_PRINTLN("   Enter Display Type 1=154_SSD1608, 2=154_SSD1681, 3=213_SSD1608a, 4=213_SSD1608b, 5=290_Waveshare:");
     
     while (!(debugUART.available())){
       delay(10); // wait for data from the user... 
@@ -161,6 +170,12 @@ void initDisplay()
        EEPROM.write(0,4);
        EEPROM.commit();
     }
+
+    if (inString == "5"){
+       displayType = "290_Waveshare";
+       EEPROM.write(0,5);
+       EEPROM.commit();
+    }
   } 
 
   DEBUG_PRINT("    Display Type: ");
@@ -171,6 +186,8 @@ void initDisplay()
   if (EEPROM.read(0)==2){displayType="154_SSD1681";}
   if (EEPROM.read(0)==3){displayType="213_SSD1608a";}
   if (EEPROM.read(0)==4){displayType="213_SSD1608b";}
+  if (EEPROM.read(0)==5){displayType="290_Waveshare";}
+  
   if (EEPROM.read(0)==255){displayType="No Display";}
 
   DEBUG_PRINT(" = ");
@@ -192,17 +209,18 @@ void initDisplay()
 
 void showWhite(){
   GxEPD2_GFX &display = getDisplay();
-  //display.clearScreen();
-  display.refresh(false); // full update
-  display.fillRect(0, 0, 250, 122, GxEPD_WHITE);
+  //display.init(0);
+  display.clearScreen();
+  display.refresh(true); // true = partial update
+  //display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
   while (display.nextPage());
 }
 
 void showBlack(){
   GxEPD2_GFX &display = getDisplay();
   display.clearScreen();
-  display.refresh(false); // full update
-  display.fillRect(0, 0, 250, 122, GxEPD_BLACK);
+  display.refresh(true); // full update
+  //display.fillRect(0, 0, 250, 122, GxEPD_BLACK);
   while (display.nextPage());
 }
 
@@ -239,11 +257,10 @@ void centerPrint(String s, uint16_t y)
 void displayTitles(String title1, String title2)
 {
   GxEPD2_GFX &display = getDisplay();
-  //display.fillScreen(GxEPD_WHITE);
-  //display.clearScreen();
-  //display.init(0);
+  display.setPartialWindow(0, 0, display.width(), display.height());
+  display.firstPage();
+  
   display.fillScreen(GxEPD_WHITE);
-
   display.setTextSize(3);
   centerPrint(title1, 1);
   display.setTextSize(2);
@@ -260,7 +277,7 @@ void displayCopyright()
   centerPrint("(c) 2022, Digame Systems.", 180);
   centerPrint("All rights reserved.", 190);
   //display.display();
-  while (display.nextPage());
+  do {} while (display.nextPage());
 }
 
 //******************************************************************************************
