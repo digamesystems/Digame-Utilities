@@ -16,12 +16,9 @@
 struct NetworkConfig
 {
     String hostName  = "Digame Device";
-    String ssid      = "AndroidAP3AE2";
-    String password  = "ohpp8971";
-    // https:// posts are not working, yet. We need to work out using 
-    // certificates properly. 
-    //String serverURL = "https://trailwaze.info/zion/lidar_shuttle_import.php";
-    //String serverURL = "https://199.21.201.53/zion/lidar_shuttle_import.php";
+    String ssid      = "YOUR_SSID";
+    String password  = "YOUR_PASSSORD";
+    // serverURL is the destination for the postJSON function below
     String serverURL = "http://199.21.201.53/trailwaze/zion/lidar_shuttle_import.php";
 };
 
@@ -38,12 +35,14 @@ String getMACAddress()
     String retString;
 
     WiFi.macAddress(mac);
-    retString = String(String(mac[0], HEX) + ":");
-    retString = String(retString + String(mac[1], HEX) + ":");
-    retString = String(retString + String(mac[2], HEX) + ":");
-    retString = String(retString + String(mac[3], HEX) + ":");
-    retString = String(retString + String(mac[4], HEX) + ":");
-    retString = String(retString + String(mac[5], HEX));
+
+    char buffer[3];
+    for (int i = 0; i<5; i++){
+      sprintf(buffer, "%02x", mac[i]);
+      retString = String(retString + buffer + ":");
+    }
+    sprintf(buffer, "%02x", mac[5]);
+    retString = String(retString + buffer);
 
     return retString;
 }
