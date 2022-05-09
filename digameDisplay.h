@@ -108,32 +108,29 @@ void initDisplay()
   if (EEPROM.read(0)==255){
     DEBUG_PRINTLN("    ****Display Uninitialized****");
   }
-   // changeDisplayType = true;
-  //}else{
-    DEBUG_PRINTLN("    Current Display Type: " + String(EEPROM.read(0)));
-    DEBUG_PRINT(  "    Change? y/[n] (You have 5 sec to decide) ");
-    unsigned long t1 = millis();
-    unsigned long t2 = t1;
 
-    while (
-            !(debugUART.available()) && 
-            ((t2-t1)<5000)
-          )
-    {
-      t2 = millis();
-      delay(500); // wait for data from the user... 
-      DEBUG_PRINT(".");
-    }
+  DEBUG_PRINTLN("    Current Display Type: " + String(EEPROM.read(0)));
+  DEBUG_PRINT(  "    Change? y/[n] (You have 5 sec to decide) ");
+  unsigned long t1 = millis();
+  unsigned long t2 = t1;
 
-    DEBUG_PRINTLN();
+  while (
+          !(debugUART.available()) && 
+          ((t2-t1)<5000)
+        )
+  {
+    t2 = millis();
+    delay(500); // wait for data from the user... 
+    DEBUG_PRINT(".");
+  }
 
-    if (debugUART.available()){
-      String ynString = debugUART.readStringUntil('\n');
-      ynString.trim();
-      if (ynString == "y") {changeDisplayType = true;}
-    }
+  DEBUG_PRINTLN();
 
-  //}
+  if (debugUART.available()){
+    String ynString = debugUART.readStringUntil('\n');
+    ynString.trim();
+    if (ynString == "y") {changeDisplayType = true;}
+  }
 
   if (changeDisplayType){
     DEBUG_PRINTLN("   Enter Display Type 1=154_SSD1608, 2=154_SSD1681, 3=213_SSD1608a, 4=213_SSD1608b, 5=290_Waveshare:");

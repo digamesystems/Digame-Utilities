@@ -19,7 +19,7 @@ struct NetworkConfig
     String ssid      = "YOUR_SSID";
     String password  = "YOUR_PASSSORD";
     // serverURL is the destination for the postJSON function below
-    String serverURL = "http://199.21.201.53/trailwaze/zion/lidar_shuttle_import.php";
+    String serverURL = "YOUR_SERVER_URL";
 };
 
 // Globals
@@ -146,8 +146,8 @@ void disableWiFi()
 // in a smart way.
 bool postJSON(String jsonPayload, NetworkConfig config)
 {
-    DEBUG_PRINT("postJSON Running on Core #: ");
-    DEBUG_PRINTLN(xPortGetCoreID());
+    //DEBUG_PRINT("postJSON Running on Core #: ");
+    //DEBUG_PRINTLN(xPortGetCoreID());
     // DEBUG_PRINT("Free Heap: ");
     // DEBUG_PRINTLN(ESP.getFreeHeap());
 
@@ -170,9 +170,9 @@ bool postJSON(String jsonPayload, NetworkConfig config)
     
     // http.begin("http://199.21.201.53/trailwaze/zion/lidar_sensor_import.php");
 
-    DEBUG_PRINT("JSON payload length: ");
+    DEBUG_PRINT("  JSON payload length: ");
     DEBUG_PRINTLN(jsonPayload.length());
-    DEBUG_PRINT("HTTP begin Time: ");
+    DEBUG_PRINT("  HTTP begin Time: ");
     DEBUG_PRINTLN(millis() - t1);
 
     // If you need an HTTP request with a content type: application/json, use the following:
@@ -181,19 +181,18 @@ bool postJSON(String jsonPayload, NetworkConfig config)
     t1 = millis();
     int httpResponseCode = http.POST(jsonPayload);
 
-    DEBUG_PRINT("POST Time: ");
+    DEBUG_PRINT("  POST Time: ");
     DEBUG_PRINTLN(millis() - t1);
-    DEBUG_PRINTLN("POSTing to Server:");
+    DEBUG_PRINTLN("  POSTing to Server:");
+    DEBUG_PRINT("    ");
     DEBUG_PRINTLN(jsonPayload);
-    DEBUG_PRINT("HTTP response code: ");
+    DEBUG_PRINT("  HTTP response code: ");
     DEBUG_PRINTLN(httpResponseCode);
     if (!(httpResponseCode == 200))
     {
-        DEBUG_PRINTLN("*****ERROR*****");
+        DEBUG_PRINTLN("  *****ERROR*****");
         DEBUG_PRINTLN(http.errorToString(httpResponseCode));
     }
-
-    DEBUG_PRINTLN();
 
     // Free resources
     http.end();

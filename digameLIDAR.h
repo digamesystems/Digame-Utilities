@@ -81,10 +81,11 @@ bool initLIDAR(bool triggeredMode = false)
     bool result; 
     int16_t dist=0;
     
-    tfmP.sendCommand(TRIGGER_DETECTION, 0); // Trigger a LIDAR measurment
-    delay(200);                 // Wait a bit...
-    result = tfmP.getData(dist); // Grab the results
-
+    for (int i =0; i<3; i++){ // First reading may be wonky
+      tfmP.sendCommand(TRIGGER_DETECTION, 0); // Trigger a LIDAR measurment
+      delay(200);                 // Wait a bit...
+      result = tfmP.getData(dist); // Grab the results
+    }
     //DEBUG_PRINT("Initial Result: ");
     //DEBUG_PRINTLN(result);
 
@@ -630,12 +631,12 @@ int processLIDARSignal3(Config config){
     // Hardcoded decay constant. TODO: If this works well, make adjustable.
     if (tfDist > config.lidarZone1Max.toInt())
     {
-      zone1Strength = zone1Strength -  zone1Strength * 0.05; // Subtract 'car-ness' from Zone 1
+      zone1Strength = zone1Strength -  zone1Strength * 0.10; // Subtract 'car-ness' from Zone 1
     }
 
     if (tfDist > config.lidarZone2Max.toInt()) 
     {
-      zone2Strength = zone2Strength - zone2Strength *0.05; // Subtract 'car-ness' from Zone 2
+      zone2Strength = zone2Strength - zone2Strength *0.10; // Subtract 'car-ness' from Zone 2
     }
     
     previousCarPresentLane1 = carPresentLane1;
@@ -683,7 +684,7 @@ int processLIDARSignal3(Config config){
         debugUART.print(",");
         debugUART.print(zone1Strength);
         debugUART.print(",");
-        debugUART.println(zone2Strength);
+        debugUART.println(bufferInteg1);
      }
 
   }

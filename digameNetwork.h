@@ -136,7 +136,7 @@ void disableWiFi()
     WiFi.setSleep(true);
     WiFi.disconnect(true);  // Disconnect from the network
     WiFi.mode(WIFI_OFF);    // Switch WiFi off
-    setCpuFrequencyMhz(40); // Drop cpu down to conserve power
+    //setCpuFrequencyMhz(40); // Drop cpu down to conserve power
     debugUART.println("");
     debugUART.println("WiFi disconnected!");
     wifiConnected = false;
