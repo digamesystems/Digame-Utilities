@@ -91,6 +91,8 @@ String processor(const String& var){
   if(var == "config.logHeartBeatEvents") return F(String(config.logHeartBeatEvents).c_str());  
   if(var == "config.logVehicleEvents") return F(String(config.logVehicleEvents).c_str());
   if(var == "config.logRawData") return F(String(config.logRawData).c_str());
+  if(var == "config.logLidarEvents") return F(String(config.logLidarEvents).c_str());
+  
   if(var == "config.counterPopulation") return F(String(config.counterPopulation).c_str());
   if(var == "config.counterID") return F(String(config.counterID).c_str());
   
@@ -196,6 +198,7 @@ void initWebServer() {
   server.on("/cleareventlog", HTTP_GET, [](AsyncWebServerRequest *request){
     //request->send(SD, "/eventlog.txt", "text/plain",true);
     deleteFile("/eventlog.txt");
+    saveTextFile("/eventlog.txt","");
     redirectHome(request);
   });
 
@@ -227,12 +230,15 @@ void initWebServer() {
     config.logBootEvents = "";
     config.logHeartBeatEvents = "";
     config.logVehicleEvents = "";
+    config.logLidarEvents ="";
     config.logRawData = "";
 
     processQueryParam(request, "logbootevents", &config.logBootEvents);
     processQueryParam(request, "logheartbeatevents", &config.logHeartBeatEvents);
     processQueryParam(request, "logvehicleevents", &config.logVehicleEvents);
     processQueryParam(request, "lograwdata", &config.logRawData);
+    processQueryParam(request, "loglidarevents", &config.logLidarEvents);
+    
 
     String strReboot;
     processQueryParam(request, "reboot", &strReboot);

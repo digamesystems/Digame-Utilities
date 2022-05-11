@@ -51,6 +51,7 @@ struct Config
   String logHeartBeatEvents = "";
   String logVehicleEvents = "";
   String logRawData = "";
+  String logLidarEvents = "";
 
   //Counters
   String counterPopulation = "1";
@@ -240,6 +241,7 @@ void loadConfiguration(const char *filename, Config &config)
   initConfigEntry(&config.logHeartBeatEvents , (const char *)doc["log"]["heartBeatEvents"]);
   initConfigEntry(&config.logVehicleEvents , (const char *)doc["log"]["vehicleEvents"]);
   initConfigEntry(&config.logRawData , (const char *)doc["log"]["rawData"]);
+  initConfigEntry(&config.logLidarEvents , (const char *)doc["log"]["lidar"]);
   
   initConfigEntry(&config.counterPopulation , (const char *)doc["counter"]["population"]);
   initConfigEntry(&config.counterID , (const char *)doc["counter"]["id"]);
@@ -334,6 +336,8 @@ void saveConfiguration(const char *filename, Config &config)
   doc["log"]["heartBeatEvents"] = config.logHeartBeatEvents;
   doc["log"]["vehicleEvents"] = config.logVehicleEvents;
   doc["log"]["rawData"] = config.logRawData;
+  doc["log"]["lidar"] = config.logLidarEvents;
+  
 
   doc["counter"]["population"] = config.counterPopulation;
   doc["counter"]["id"] = config.counterID;
@@ -387,26 +391,26 @@ void saveTextFile(const char *filename, String contents)
 {
 
   //debugUART.println(initSDCard());
-  debugUART.print("  Saving data to: ");
-  debugUART.println(filename);
+  //debugUART.print("  Saving data to: ");
+  //debugUART.println(filename);
 
   deleteFile(filename);
 
   // Open file for writing
-  debugUART.println("    Opening file for write...");
+  //debugUART.println("    Opening file for write...");
   File file = SD.open(filename, FILE_WRITE);
 
   if (!file)
   {
-    debugUART.println(F("    Failed to create file!"));
+    //debugUART.println(F("    Failed to create file!"));
     return;
   }
 
-  debugUART.println("    Writing file...");
-  file.println(contents);
+  //debugUART.println("    Writing file...");
+  file.print(contents);
 
   // Close the file
-  debugUART.println("  Done.");
+  //debugUART.println("  Done.");
   file.close();
 }
 
@@ -417,9 +421,9 @@ void appendTextFile(const char *filename, String contents)
 
   //debugUART.println(initSDCard());
   if (config.showDataStream == "false"){       
-    debugUART.print("Saving data to: ");
-    debugUART.print(filename);
-    debugUART.print("... ");
+    //debugUART.print("Saving data to: ");
+    //debugUART.print(filename);
+    //debugUART.print("... ");
   }
 
   // Open file for writing
@@ -433,11 +437,11 @@ void appendTextFile(const char *filename, String contents)
   }
 
   //debugUART.println("    Writing file...");
-  file.println(contents);
+  file.print(contents);
 
   // Close the file
   if (config.showDataStream == "false"){  
-    debugUART.println("  Done.");
+    //debugUART.println("  Done.");
   }
   file.close();
 }

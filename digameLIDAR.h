@@ -538,6 +538,9 @@ int processLIDARSignal2(Config config){
 int processLIDARSignal3(Config config){
   // LIDAR signal analysis parameters
 
+  static String distanceLog;
+  static int  numMeasurements = 0;
+
   int16_t tfDist = 0;          // Distance to object in centimeters
   int16_t tfFlux = 0;          // Strength or quality of return signal
   int16_t tfTemp = 0;          // Internal temperature of Lidar sensor chip
@@ -686,6 +689,18 @@ int processLIDARSignal3(Config config){
         debugUART.print(",");
         debugUART.println(bufferInteg1);
      }
+
+    if (config.logLidarEvents == "checked") {
+      distanceLog = distanceLog + String(tfDist) + "\n";
+      numMeasurements += 1;
+      if (numMeasurements >=100){
+        DEBUG_PRINTLN("SAVING...");
+        appendTextFile("/eventlog.txt", distanceLog);
+        numMeasurements = 0;
+        distanceLog = "";
+      }
+      
+    }
 
   }
   else
