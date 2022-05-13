@@ -74,7 +74,9 @@ bool enableWiFi(NetworkConfig config)
 
     WiFi.disconnect();   // Disconnect the network
     WiFi.mode(WIFI_OFF); // Switch WiFi off
-
+    DEBUG_PRINTLN(ssid);
+    DEBUG_PRINTLN(password);
+    DEBUG_PRINTLN(config.serverURL);
     delay(100); // Wait a bit...
 
     DEBUG_PRINT("  Starting WiFi");
