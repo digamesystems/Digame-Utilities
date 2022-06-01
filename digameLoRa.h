@@ -13,6 +13,7 @@ void initLoRa()
 {
   LoRaUART.begin(115200, SERIAL_8N1, 25, 33);
   delay(1500);
+  //LoRaUART.setTimeout(10000); //   timout on .available()
 }
 
 //****************************************************************************************
@@ -25,7 +26,7 @@ String sendReceiveReyax(String s)
   //debugUART.print("Sending: ");
   //debugUART.println(s);
   //Send the command
-  LoRaUART.println(s);
+  LoRaUART.print(s + "\r\n");
 
   //Read reply. TODO: Parse Error codes. Add a timeout, etc.
   while (!LoRaUART.available())

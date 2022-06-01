@@ -31,7 +31,8 @@ void setLowPowerMode() {
     WiFi.disconnect(true);
     WiFi.mode(WIFI_OFF);
     btStop();
-    adc_power_off();
+    adc_power_off();// Depricated
+    //adc_power_release();
     esp_wifi_stop();
     esp_bt_controller_disable();
     delay(500);
@@ -69,7 +70,8 @@ void setFullPowerMode() {
     setCpuFrequencyMhz(240); // Speed up the CPU
     btStop();
     esp_bt_controller_disable();
-    adc_power_on();          // Turn on the ADCs for WiFi
+    //adc_power_on();          // Turn on the ADCs for WiFi
+    adc_power_acquire();
     delay(500);
     DEBUG_PRINTLN("    Done. Full Power Mode Enabled. ");
     delay(500);

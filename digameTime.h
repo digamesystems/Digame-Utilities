@@ -42,6 +42,9 @@ bool   setRTCTime();   // Set the DS3231 module to the same time as the
 int    getRTCSecond(); // The current second
 int    getRTCMinute(); // The current minute
 int    getRTCHour();   // The current hour
+int    getRTCCDay();
+int    getRTCMonth();
+int    getRTCYear();
 float  getRTCTemperature();
 
 bool   synchTimesToNTP(); // Get time from an NTP server and set both
@@ -192,6 +195,27 @@ int getRTCHour(){
 }
 
 //*****************************************************************************
+int getRTCDay(){
+  RTClib myRTC;
+  DateTime now = myRTC.now();
+  return now.day(); 
+}
+
+//*****************************************************************************
+int getRTCMonth(){
+  RTClib myRTC;
+  DateTime now = myRTC.now();
+  return now.month(); 
+}
+
+//*****************************************************************************
+int getRTCYear(){
+  RTClib myRTC;
+  DateTime now = myRTC.now();
+  return now.year(); 
+}
+
+//*****************************************************************************
 float getRTCTemperature(){
     DS3231 clock;
     return clock.getTemperature(); 
@@ -223,7 +247,10 @@ bool setRTCTime(){
   clock.setSecond(timeinfo.tm_sec);
   
   return true;
-}  
+}
+
+
+
 
 //*****************************************************************************
 // Get the time from an NTP server and copy it into the external RTC

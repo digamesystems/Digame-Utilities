@@ -74,9 +74,9 @@ bool enableWiFi(NetworkConfig config)
 
     WiFi.disconnect();   // Disconnect the network
     WiFi.mode(WIFI_OFF); // Switch WiFi off
-    DEBUG_PRINTLN(ssid);
-    DEBUG_PRINTLN(password);
-    DEBUG_PRINTLN(config.serverURL);
+    DEBUG_PRINTLN("  SSID:       " + ssid);
+    DEBUG_PRINTLN("  Password:   " + password);
+    DEBUG_PRINTLN("  Server URL: " + config.serverURL);
     delay(100); // Wait a bit...
 
     DEBUG_PRINT("  Starting WiFi");
@@ -88,7 +88,7 @@ bool enableWiFi(NetworkConfig config)
     WiFi.begin(ssid.c_str(), password.c_str()); // Log in
 
     bool timedout = false;
-    unsigned long wifiTimeout = 10000;
+    unsigned long wifiTimeout = 3000;
     unsigned long tstart = millis();
     while (WiFi.status() != WL_CONNECTED)
     {
@@ -102,16 +102,19 @@ bool enableWiFi(NetworkConfig config)
         }
     }
 
+    DEBUG_PRINT("Elapsed Time (ms): ");
+    DEBUG_PRINTLN((millis()-tstart));
+
     msLastConnectionAttempt = millis(); // Timer value of the last time we tried to connect to the wifi.
 
     if (timedout)
-    {
+    { 
+        WiFi.disconnect();
         wifiConnected = false;
         return false;
     }
     else
     {
-        DEBUG_PRINTLN();
         DEBUG_PRINTLN("    WiFi connected.");
         DEBUG_PRINT("    IP address: ");
         DEBUG_PRINTLN(WiFi.localIP());

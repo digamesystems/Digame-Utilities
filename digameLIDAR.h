@@ -43,15 +43,7 @@ String getDistanceHistogramString();
 
 
 
-
-
-
-
-//*****************************************************************************
-// Set up the LIDAR sensor in triggered mode
-bool initLIDAR(bool triggeredMode = false)
-{
-
+bool initLIDARCom(bool triggeredMode = false){
   tfMiniUART.begin(115200); // Initialize TFMPLus device serial port.
   delay(1000);              // Give port time to initalize
   tfmP.begin(&tfMiniUART);  // Initialize device library object and...
@@ -75,6 +67,21 @@ bool initLIDAR(bool triggeredMode = false)
       }
     }
     delay(1000);
+ }
+ 
+ return true;
+
+}
+
+
+
+
+
+//*****************************************************************************
+// Set up the LIDAR sensor in triggered mode
+bool initLIDAR(bool triggeredMode = false)
+{ 
+    if (initLIDARCom(triggeredMode)){
 
     //GRAB an initial Value to test: 
     debugUART.print("    Initial LIDAR Reading: ");
@@ -106,18 +113,16 @@ bool initLIDAR(bool triggeredMode = false)
       debugUART.println(dist);
     }
     
-
-    
     return true;
   }
   else
   {
-
     debugUART.println("ERROR! LIDAR Sensor not found or sensor error.");
     //hwStatus+="   LIDAR: ERROR!\n\n";
 
     return false;
   }
+
 }
 
 //*****************************************************************************
