@@ -74,17 +74,17 @@ bool enableWiFi(Config config)
 {
     String ssid = config.ssid;
     String password = config.password;
-
-    DEBUG_PRINTLN(ssid);
-    DEBUG_PRINTLN(password);
-    DEBUG_PRINTLN(config.serverURL);
+    DEBUG_PRINTLN("  Starting WiFi");
+    DEBUG_PRINTLN("    SSID: " + ssid);
+    DEBUG_PRINTLN("    Password: " + password);
+    DEBUG_PRINTLN("    Server URL: " + config.serverURL);
     setCpuFrequencyMhz(80);
     WiFi.disconnect();   // Disconnect the network
     WiFi.mode(WIFI_OFF); // Switch WiFi off
 
     delay(1000); // Wait a bit...
 
-    debugUART.print("  Starting WiFi");
+    
     WiFi.mode(WIFI_STA); // Station mode
     delay(250);
     String hostName = config.deviceName;
@@ -95,13 +95,14 @@ bool enableWiFi(Config config)
     bool timedout = false;
     unsigned long wifiTimeout = 30000;
     unsigned long tstart = millis();
+    DEBUG_PRINT("    ")
     while (WiFi.status() != WL_CONNECTED)
     {
         delay(1000);
-        debugUART.print(".");
+        DEBUG_PRINT(".");
         if ((millis() - tstart) > wifiTimeout)
         {
-            debugUART.println("Timeout attempting WiFi connection.");
+            DEBUG_PRINTLN("    Timeout attempting WiFi connection.");
             timedout = true;
             break;
         }

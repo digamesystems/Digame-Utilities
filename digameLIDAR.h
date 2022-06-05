@@ -544,7 +544,7 @@ int processLIDARSignal3(Config config){
   // LIDAR signal analysis parameters
 
   static String distanceLog;
-  static int  numMeasurements = 0;
+  static unsigned long  numMeasurements = 0;
 
   int16_t tfDist = 0;          // Distance to object in centimeters
   int16_t tfFlux = 0;          // Strength or quality of return signal

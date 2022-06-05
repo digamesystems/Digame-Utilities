@@ -365,6 +365,24 @@ void displayTextScreenLarge(String title, String s1, String s2)
 }
 
 //******************************************************************************************
+void displayTextScreenLarge(String title, String s1, String s2, String s3)
+{
+  GxEPD2_GFX &display = getDisplay();
+  displayTitles(title,"");
+  display.setTextSize(3);
+  if ((displayType == "213_SSD1608a")|| (displayType == "213_SSD1608b")){
+    centerPrint(s1,50);
+    centerPrint(s2,90);  
+    centerPrint(s3,130);
+  } else { 
+    centerPrint(s1,50);
+    centerPrint(s2,85);
+    centerPrint(s3,120);
+  }
+  displayCopyright();
+}
+
+//******************************************************************************************
 void displayStatusScreen(String s)
 {
   displayTextScreen("SELF-TEST", s);

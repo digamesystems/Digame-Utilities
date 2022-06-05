@@ -369,7 +369,7 @@ void saveConfiguration(const char *filename, Config &config)
     //Serial.println(F("    Failed to write to file!"));
   }
 
-  // Clos e the file
+  // Close the file
   if (config.showDataStream == "false"){
    // debugUART.println("*   Done saving parameters.");
   }

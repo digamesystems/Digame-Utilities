@@ -33,7 +33,7 @@
 #define tfMiniUART Serial2
 
 #include <digameJSONConfig.h>
-#include <digameLIDAR.h>
+//#include <digameLIDAR.h>
 #include <digameLoRa.h>
 #include <digameNetwork.h>
 #include <digameTime.h>
@@ -50,6 +50,9 @@ const char* http_username = "admin";
 const char* http_password = "admin";
 
 unsigned long msLastWebPageEventTime;
+String lastDistanceMeasured = "0";
+String lastDistanceMeasured2 = "0";
+
 
 
 //*******************************************************************************************************
@@ -82,6 +85,8 @@ String processor(const String& var){
   if(var == "config.loraPreamble") return F(String(config.loraPreamble).c_str());
   
   if(var == "config.lidarResidenceTime") return F(String(config.lidarResidenceTime).c_str());
+  if(var == "config.lidarSmoothingFactor") return F(String(config.lidarSmoothingFactor).c_str());
+  
   if(var == "config.lidarZone1Min") return F(String(config.lidarZone1Min).c_str());
   if(var == "config.lidarZone1Max") return F(String(config.lidarZone1Max).c_str());
   if(var == "config.lidarZone2Min") return F(String(config.lidarZone2Min).c_str());
@@ -204,17 +209,17 @@ void initWebServer() {
 
   server.on("/histograph", HTTP_GET, [](AsyncWebServerRequest *request){
     debugUART.println("GET /histograph");
-    request->send(200, "text/plain", getDistanceHistogramChartString(config));
+    //request->send(200, "text/plain", getDistanceHistogramChartString(config));
   });
 
   server.on("/histo", HTTP_GET, [](AsyncWebServerRequest *request){
     debugUART.println("GET /histo");
-    request->send(200, "text/plain", getDistanceHistogramString());
+    //request->send(200, "text/plain", getDistanceHistogramString());
   });
   
   server.on("/counterreset",HTTP_GET, [](AsyncWebServerRequest *request){
     count = 0;
-    clearLIDARDistanceHistogram();
+    //clearLIDARDistanceHistogram();
     config.lidarZone1Count = "0"; 
     redirectHome(request);
   });
@@ -279,6 +284,7 @@ void initWebServer() {
 
     processQueryParam(request, "counterid", &config.counterID);
     processQueryParam(request, "counterpopulation", &config.counterPopulation);
+    processQueryParam(request, "smoothingfactor", &config.lidarSmoothingFactor);
     processQueryParam(request, "residencetime", &config.lidarResidenceTime);
     processQueryParam(request, "zone1min", &config.lidarZone1Min);
     processQueryParam(request, "zone1max", &config.lidarZone1Max);
@@ -310,7 +316,8 @@ void initWebServer() {
 
   server.on("/distance", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", lastDistanceMeasured+","+\
-                                     String(config.lidarZone1Count));
+                                     String(config.lidarZone1Count)+","+\
+                                     lastDistanceMeasured2);
     msLastWebPageEventTime = millis();
   });
 
