@@ -2,6 +2,10 @@
 #define __DIGAME_COUNTER_WEB_SERVER_H__
 
 /*
+  Credit: This code based on some example code by Rui Santos and greatly extended for our
+  application. He has asked that the following notice be included -- 
+
+  "
   Rui Santos
   Complete project details at https://RandomNerdTutorials.com/esp32-web-server-microsd-card/
   
@@ -10,13 +14,13 @@
   
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
+  "
 */
 
 #include <Arduino.h>
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-
 #include <AsyncElegantOTA.h>
 
 #include "FS.h"
@@ -25,16 +29,11 @@
 
 #include <SPIFFS.h>
 
-
-
 #include <digameVersion.h> //for SW_VERSION.
 
 #define debugUART Serial
-#define tfMiniUART Serial2
 
 #include <digameJSONConfig.h>
-//#include <digameLIDAR.h>
-#include <digameLoRa.h>
 #include <digameNetwork.h>
 #include <digameTime.h>
 
@@ -148,9 +147,9 @@ void processQueryParam(AsyncWebServerRequest *request, String qParam, String *ta
       //debugUART.println("found");
       AsyncWebParameter* p = request->getParam(qParam);
 
-      debugUART.print(p->value());
-      debugUART.print(" ");
-      debugUART.println(String(p->value()).length());
+      //debugUART.print(p->value());
+      //debugUART.print(" ");
+      //debugUART.println(String(p->value()).length());
 
 
       if (String(p->value()).length() == 0) {
@@ -218,9 +217,12 @@ void initWebServer() {
   });
   
   server.on("/counterreset",HTTP_GET, [](AsyncWebServerRequest *request){
-    count = 0;
+    count    = 0;
+    inCount  = 0;
+    outCount = 0;
     //clearLIDARDistanceHistogram();
     config.lidarZone1Count = "0"; 
+    config.lidarZone2Count = "0";
     redirectHome(request);
   });
 
@@ -317,7 +319,8 @@ void initWebServer() {
   server.on("/distance", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", lastDistanceMeasured+","+\
                                      String(config.lidarZone1Count)+","+\
-                                     lastDistanceMeasured2);
+                                     lastDistanceMeasured2 + ","+\
+                                     String(config.lidarZone2Count));
     msLastWebPageEventTime = millis();
   });
 

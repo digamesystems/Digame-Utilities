@@ -1,19 +1,36 @@
 #ifndef __DIGAME_JSON_CONFIG_H__
 #define __DIGAME_JSON_CONFIG_H__
 
+
+// Is this the right place for all this SD card-specific stuff? TODO: refactor. 
 #define ADAFRUIT_EINK_SD true // Some Adafruit Eink Displays have an integrated SD card so we don't need a separate module
 #define debugUART Serial
 
 #include <SPI.h> // SPI bus functions to talk to the SD Card
 #include <SD.h>  // SD file handling
 
-#if ADAFRUIT_EINK_SD
+#if ADAFRUIT_EINK_SD  
 #define SD_CS 14 // SD card chip select
 #else
 #define SD_CS 4
 #endif
 
 #include <ArduinoJson.h>
+
+/* Big TODO: digameJSONConfig wants to be a class! Figure out he right way to slice this.
+
+   - All the elements in the Config struct below could get folded in. 
+   - A number of the simpler file i/o routines could get put into a digameFile class which 
+     could be declared in the config class. 
+   - Keep init/load/save/Config in the class. 
+
+   This'll have implications, since a number of the digame Apps are relying on a global 
+   Config struct. After refactoring, we could be handing around a reference to a config 
+   class instead.
+
+   JMP 6/17/22
+
+*/
 
 
 // Counter values for each counter TODO:add to config.
@@ -57,8 +74,6 @@ struct Config
   String counterPopulation = "1";
   String counterID = "1";
 
-  
-  
   // LoRa:
   String loraAddress = "10";
   String loraNetworkID = "7";
@@ -80,9 +95,7 @@ struct Config
   String lidarZone1Count = "0";
   String lidarZone2Count = "0";
 
-  
-
-  // Sensors:
+  // Sensors a basestation can see:
   String sens1Addr = "10";
   String sens1Name = "Sensor 1";
   String sens1MAC = "aa:bb:cc:dd:ee:01";
@@ -99,7 +112,8 @@ struct Config
   String sens4Name = "Sensor 4";
   String sens4MAC = "aa:bb:cc:dd:ee:04";
 
-  String displayType = "SSD1608"; // so we can switch displays at run time based on the config file.
+
+  //String displayType = "SSD1608"; // so we can switch displays at run time based on the config file.
 };
 
 Config config;
@@ -113,7 +127,7 @@ void saveConfiguration(const char *filename, Config &config);
 void printFile(const char *filename);
 
 // Test for SD Card, Load Config from file
-bool initJSONConfig(const char *filename, const Config &config);
+bool initJSONConfig(const char *filename);
 
 //****************************************************************************************
 // See if the card is present and can be initialized.
@@ -269,7 +283,7 @@ void loadConfiguration(const char *filename, Config &config)
   initConfigEntry(&config.sens4Addr , (const char *)doc["sensor"]["4"]["addr"]);
   initConfigEntry(&config.sens4MAC , (const char *)doc["sensor"]["4"]["mac"]);
 
-  initConfigEntry(&config.displayType , (const char *)doc["displayType"]);
+  //initConfigEntry(&config.displayType , (const char *)doc["displayType"]);
 
   // Close the file (Curiously, File's destructor doesn't close the file)
   file.close();
@@ -338,11 +352,8 @@ void saveConfiguration(const char *filename, Config &config)
   doc["log"]["rawData"] = config.logRawData;
   doc["log"]["lidar"] = config.logLidarEvents;
   
-
   doc["counter"]["population"] = config.counterPopulation;
   doc["counter"]["id"] = config.counterID;
-
-
 
   doc["sensor"]["1"]["name"] = config.sens1Name;
   doc["sensor"]["1"]["addr"] = config.sens1Addr;
@@ -357,7 +368,7 @@ void saveConfiguration(const char *filename, Config &config)
   doc["sensor"]["4"]["addr"] = config.sens4Addr;
   doc["sensor"]["4"]["mac"] = config.sens4MAC;
 
-  doc["displayType"] = config.displayType;
+  //doc["displayType"] = config.displayType;
 
   // Serialize JSON to file
   if (config.showDataStream == "false"){
