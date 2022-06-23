@@ -325,10 +325,15 @@ void initWebServer() {
   });
 
   server.on("/counters", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", str1Count+","+\
-                                     str2Count+","+\
-                                     str3Count+","+\
-                                     str4Count); 
+    request->send(200, "text/plain", config.sens1Zone1+","+\
+                                     config.sens2Zone1+","+\
+                                     config.sens3Zone1+","+\
+                                     config.sens4Zone1+","+\
+                                     config.sens1Zone2+","+\
+                                     config.sens2Zone2+","+\
+                                     config.sens3Zone2+","+\
+                                     config.sens4Zone2                                     
+                                     ); 
   });
 
   server.on("/uptime", HTTP_GET, [](AsyncWebServerRequest *request){
