@@ -4,9 +4,16 @@
 #define debugUART Serial
 #define LoRaUART Serial1
 
+#include <digameJSONConfig.h>
+#include <digameDebug.h>
 #include <ArduinoJson.h>
 
 uint16_t LoRaRetryCount = 0;
+
+bool loraSleeping = false;
+
+bool showDebugMsgs = false; 
+
 
 //****************************************************************************************
 void initLoRa()
@@ -36,8 +43,8 @@ String sendReceiveReyax(String s)
 
   loraMsg = LoRaUART.readStringUntil('\n');
 
-  //debugUART.print("Received: ");
-  //debugUART.println(loraMsg);
+  debugUART.print("Received: ");
+  debugUART.println(loraMsg);
   return loraMsg;
 }
 
@@ -46,48 +53,54 @@ String sendReceiveReyax(String s)
 bool configureLoRa(Config &config)
 {
 
-  //debugUART.println("  Configuring LoRa...");
+  showDebugMsgs = (config.showDataStream == "false");
+
+  if (showDebugMsgs) {
+    debugUART.println("  Configuring LoRa...");
+  }
   //LoRaUART.println("AT");
   //delay(1000);
   sendReceiveReyax("AT"); // Get the module's attention
   //sendReceiveReyax("AT"); // Get the module's attention
 
-  //debugUART.println("    Setting Address to: " + config.loraAddress);
+  debugUART.println("    Setting Address to: " + config.loraAddress);
   ///config.loraAddress.trim();
   //debugUART.println(config.loraAddress);
   sendReceiveReyax("AT+ADDRESS=" + config.loraAddress);
   //sendReceiveReyax("AT+ADDRESS?");
 
-  //debugUART.println("    Setting Network ID to: " + config.loraNetworkID);
+  debugUART.println("    Setting Network ID to: " + config.loraNetworkID);
   sendReceiveReyax("AT+NETWORKID=" + config.loraNetworkID);
   //sendReceiveReyax("AT+NETWORKID?");
 
-  //debugUART.println("    Setting Band to: " + config.loraBand);
+  debugUART.println("    Setting Band to: " + config.loraBand);
   sendReceiveReyax("AT+BAND=" + config.loraBand);
   //sendReceiveReyax("AT+BAND?");
 
-  //debugUART.println("    Setting Modulation Parameters to: " + config.loraSF + "," + config.loraBW + "," + config.loraCR + "," + config.loraPreamble);
+  debugUART.println("    Setting Modulation Parameters to: " + config.loraSF + "," + config.loraBW + "," + config.loraCR + "," + config.loraPreamble);
   sendReceiveReyax("AT+PARAMETER=" + config.loraSF + "," + config.loraBW + "," + config.loraCR + "," + config.loraPreamble);
   //sendReceiveReyax("AT+PARAMETER?");
 
-  //debugUART.println("    Sleeping LoRa Module...");
-  //sendReceiveReyax("AT+MODE=1");
-  //hwStatus+= "   LoRa : OK\n\n";
+
   return true;
 }
 
 void sleepReyax(){
+  debugUART.println("Sleeping LoRa Module...");
   sendReceiveReyax("AT+MODE=1");
+  loraSleeping = true;
 }
 
-void wakeReyax(){
+void wakeReyax(Config &config){
+  debugUART.println("Waking LoRa Module...");
   sendReceiveReyax("AT+MODE=0");
+  loraSleeping = false;
   configureLoRa(config); // Calling Mode = 0 resets the module. Settings are lost.
 }
 
 //****************************************************************************************
-// Sends a message to another LoRa module and listens for an ACK reply.
-bool sendReceiveLoRa(String msg)
+// Sends a json message to another LoRa module and listens for an ACK reply.
+bool sendReceiveLoRa(String msg, Config &config)
 {
   long timeout = 2500; // TODO: Make this part of the Config struct -- better yet,
                        // calculate from the LoRa RF parameters and payload...
@@ -95,8 +108,8 @@ bool sendReceiveLoRa(String msg)
  
   String strRetryCount;
   long t2, t1;
-
-  wakeReyax();
+  
+  if (loraSleeping){ wakeReyax(config); }
 
   t1 = millis();
   t2 = t1;
@@ -122,7 +135,6 @@ bool sendReceiveLoRa(String msg)
     debugUART.print(F("deserializeJson() failed: "));
     debugUART.println(error.f_str());
     debugUART.println(msg);
-    sleepReyax();
     return false;
   }
 
@@ -134,14 +146,13 @@ bool sendReceiveLoRa(String msg)
   if (serializeJson(doc, msg) == 0)
   {
     Serial.println(F("Failed to write to string"));
-    sleepReyax();
     return false;
   }
 
   // Send the message. - Base stations use address 1.
   String reyaxMsg = "AT+SEND=1," + String(msg.length()) + "," + msg;
 
-if (config.showDataStream == "false"){
+if (showDebugMsgs){
   debugUART.print("Message Length: ");
   debugUART.println(reyaxMsg.length());
   
@@ -152,14 +163,6 @@ if (config.showDataStream == "false"){
   LoRaUART.println(reyaxMsg);
 
 // Wait for ACK or timeout
-
-// For Testing, don't wait for an ACK from a basestation
-          
-#if STAND_ALONE_LORA
-  //replyPending = false;
-  //return true;
-#endif
-
   while ((replyPending == true) && ((t2 - t1) < timeout))
   {
     t2 = millis();
@@ -174,24 +177,31 @@ if (config.showDataStream == "false"){
           if (config.showDataStream == "false"){
             debugUART.println("ACK Received: " + inString);
           }
-          LoRaRetryCount = 0; // Reset for the next message.
-          
-          //debugUART.print("Elapsed Time: ");
-          //debugUART.println((t2-t1));
 
-          sleepReyax();
+          // TODO: Right here, we could process additional data from 
+          // the communication partner for things like commands to 
+          // change settings, etc.  Think about how to do this... 
+          // Optional JSON payload on the ACK message? Figuring
+          // out how to queue that up on the sender side might be
+          // a little tricky.
+
+          LoRaRetryCount = 0; // Reset for the next message.
+
+          debugUART.print("Elapsed Time: ");
+          debugUART.println((t2-t1));
+
           return true;
         }
       }
     }
   }
 
-  //debugUART.print("Elapsed Time: ");
-  //debugUART.println((t2-t1));
+  debugUART.print("Elapsed Time: ");
+  debugUART.println((t2-t1));
 
   if ((t2 - t1) >= timeout)
   {
-    if (config.showDataStream == "false"){
+    if (showDebugMsgs){
         debugUART.println("Timeout!");
         debugUART.println();
     }
@@ -199,9 +209,7 @@ if (config.showDataStream == "false"){
     return false;
   }
 
-
-  sleepReyax();
-  vTaskDelay(2000 / portTICK_PERIOD_MS); // Two seconds between messages
+  vTaskDelay(2000 / portTICK_PERIOD_MS); // Two seconds between failed messages
 
   return true;
   
