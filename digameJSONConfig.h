@@ -99,24 +99,32 @@ struct Config
   String sens1Addr = "10";
   String sens1Name = "Sensor 1";
   String sens1MAC = "aa:bb:cc:dd:ee:01";
+  String sens1Zone1 = "0";
+  String sens1Zone2 = "0";
 
   String sens2Addr = "11";
   String sens2Name = "Sensor 2";
   String sens2MAC = "aa:bb:cc:dd:ee:02";
+  String sens2Zone1 = "0";
+  String sens2Zone2 = "0";
 
   String sens3Addr = "12";
   String sens3Name = "Sensor 3";
   String sens3MAC = "aa:bb:cc:dd:ee:03";
+  String sens3Zone1 = "0";
+  String sens3Zone2 = "0";
 
   String sens4Addr = "13";
   String sens4Name = "Sensor 4";
   String sens4MAC = "aa:bb:cc:dd:ee:04";
+  String sens4Zone1 = "0";
+  String sens4Zone2 = "0";
 
 
   //String displayType = "SSD1608"; // so we can switch displays at run time based on the config file.
 };
 
-Config config;
+//Config config;
 
 const char *filename = "/params.txt"; // <- SD library uses 8.3 filenames
 const char *histoFilename = "/histo.csv";
@@ -430,15 +438,8 @@ void saveTextFile(const char *filename, String contents)
 void appendTextFile(const char *filename, String contents)
 {
 
-  //debugUART.println(initSDCard());
-  if (config.showDataStream == "false"){       
-    //debugUART.print("Saving data to: ");
-    //debugUART.print(filename);
-    //debugUART.print("... ");
-  }
-
   // Open file for writing
-  //debugUART.println("    Opening file for write...");
+  debugUART.println("    Opening file for write...");
   File file = SD.open(filename, FILE_APPEND);
 
   if (!file)
@@ -447,13 +448,10 @@ void appendTextFile(const char *filename, String contents)
     return;
   }
 
-  //debugUART.println("    Writing file...");
+  debugUART.println("    Writing file...");
   file.print(contents);
 
   // Close the file
-  if (config.showDataStream == "false"){  
-    //debugUART.println("  Done.");
-  }
   file.close();
 }
 
