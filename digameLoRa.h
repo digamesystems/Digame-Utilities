@@ -171,7 +171,7 @@ if (showDebugMsgs){
       String inString = LoRaUART.readStringUntil('\n');
       if (replyPending)
       {
-        if (inString.indexOf("ACK") >= 0)
+        if (inString.indexOf("ACK") >= 0) // Anything with an "ACK" in it is OK.
         {
           replyPending = false;
           if (config.showDataStream == "false"){
@@ -184,6 +184,36 @@ if (showDebugMsgs){
           // Optional JSON payload on the ACK message? Figuring
           // out how to queue that up on the sender side might be
           // a little tricky.
+
+          /*
+            How about something like this? -- Format the reply as a json message
+            of the form
+
+            {"resp":"ACK", "data":[...]} where "data" is an optional field we can
+            shove anything we like into.
+
+            Our heartbeat messages to the server already includes system settings.
+            
+            Example: 
+            
+            "{..., s:{ui:10, sf:0.4, rt:5, 1m:0, 1x:999, 2m:400, 2x:700} }
+
+            Code:
+            
+                loraHeader = loraHeader +
+                 "\",\"s\":{" +
+                 "\"ui\":\"" + config.lidarUpdateInterval  + "\"" +
+                 ",\"sf\":\"" + config.lidarSmoothingFactor + "\"" +
+                 ",\"rt\":\"" + config.lidarResidenceTime   + "\"" +
+                 ",\"1m\":\"" + config.lidarZone1Min        + "\"" +
+                 ",\"1x\":\"" + config.lidarZone1Max        + "\"" +
+                 ",\"2m\":\"" + config.lidarZone2Min        + "\"" +
+                 ",\"2x\":\"" + config.lidarZone2Max        + "\"" +
+                 "}";
+
+           Maybe just resue this format to set the various counter parameters?
+            
+          */
 
           LoRaRetryCount = 0; // Reset for the next message.
 

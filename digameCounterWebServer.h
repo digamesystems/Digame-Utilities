@@ -42,7 +42,8 @@
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
-
+ 
+bool clearCounterFlag = false;
 bool resetFlag = false;
 unsigned long upTimeMillis=0;
 const char* http_username = "admin";
@@ -173,7 +174,6 @@ void initWebServer() {
 
   Serial.println("  Initializing SPIFFS...");
 
-
   if(!SPIFFS.begin()){
     Serial.println("    File System Mount Failed");
   } else {
@@ -223,6 +223,7 @@ void initWebServer() {
     //clearLIDARDistanceHistogram();
     config.lidarZone1Count = "0"; 
     config.lidarZone2Count = "0";
+    clearCounterFlag = true;
     redirectHome(request);
   });
 
@@ -283,7 +284,6 @@ void initWebServer() {
   });
 
   server.on("/lidarparams",HTTP_GET, [](AsyncWebServerRequest *request){
-
     processQueryParam(request, "counterid", &config.counterID);
     processQueryParam(request, "counterpopulation", &config.counterPopulation);
     processQueryParam(request, "smoothingfactor", &config.lidarSmoothingFactor);
@@ -317,9 +317,9 @@ void initWebServer() {
   });
 
   server.on("/distance", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", lastDistanceMeasured+","+\
-                                     String(config.lidarZone1Count)+","+\
-                                     lastDistanceMeasured2 + ","+\
+    request->send(200, "text/plain", lastDistanceMeasured + "," +\
+                                     String(config.lidarZone1Count) + "," +\
+                                     lastDistanceMeasured2 + "," +\
                                      String(config.lidarZone2Count));
     msLastWebPageEventTime = millis();
   });
