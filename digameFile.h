@@ -1,66 +1,73 @@
 #ifndef __DIGAME_FILE_H__
 #define __DIGAME_FILE_H__
 
-#include <SPIFFS.h> 
-
+#include <SPIFFS.h>
 
 //****************************************************************************************
 // Delete a file
 //****************************************************************************************
-void deleteFile(fs::FS &fs, const char * path){
+void deleteFile(fs::FS &fs, const char *path)
+{
     Serial.printf("Deleting file: %s\n", path);
-    if(fs.remove(path)){
+    if (fs.remove(path))
+    {
         Serial.println("File deleted");
-    } else {
+    }
+    else
+    {
         Serial.println("Delete failed");
     }
 }
 
-
-
-
 //****************************************************************************************
 // Grab contents from a file
 //****************************************************************************************
-String readFile(fs::FS &fs, const char * path){
+String readFile(fs::FS &fs, const char *path)
+{
     String retValue = "";
-    //Serial.printf("Reading file: %s\r\n", path);
+    // Serial.printf("Reading file: %s\r\n", path);
 
     File file = fs.open(path);
-    if(!file || file.isDirectory()){
+    if (!file || file.isDirectory())
+    {
         DEBUG_PRINTLN("- failed to open file for reading");
         return retValue;
     }
 
-    //DEBUG_PRINTLN("- read from file:");
+    // DEBUG_PRINTLN("- read from file:");
 
-    //retValue = file.readStringUntil('\r');
-    
-    while(file.available()){
+    // retValue = file.readStringUntil('\r');
+
+    while (file.available())
+    {
         retValue = retValue + file.readString();
     }
     file.close();
-    
-    //DEBUG_PRINTLN(retValue);
-    
+
+    // DEBUG_PRINTLN(retValue);
+
     return retValue;
-    
 }
 
 //****************************************************************************************
 // Write text to a file
 //****************************************************************************************
-void writeFile(fs::FS &fs, const char * path, const char * message){
-    //Serial.printf("Writing file: %s\r\n", path);
+void writeFile(fs::FS &fs, const char *path, const char *message)
+{
+    // Serial.printf("Writing file: %s\r\n", path);
 
     File file = fs.open(path, FILE_WRITE);
-    if(!file){
+    if (!file)
+    {
         DEBUG_PRINTLN("- failed to open file for writing");
         return;
     }
-    if(file.print(message)){
+    if (file.print(message))
+    {
         DEBUG_PRINTLN("  Saved.");
-    } else {
+    }
+    else
+    {
         DEBUG_PRINTLN("- write failed");
     }
     file.close();
@@ -72,26 +79,24 @@ void writeFile(fs::FS &fs, const char * path, const char * message){
 void appendFile(fs::FS &fs, const char *filename, String contents)
 {
 
-  DEBUG_PRINTLN("Appending File...");
+    DEBUG_PRINTLN("Appending File...");
 
-  // Open file for writing
-  //debugUART.println("    Opening file for write...");
-  File file = fs.open(filename, FILE_APPEND);
+    // Open file for writing
+    // debugUART.println("    Opening file for write...");
+    File file = fs.open(filename, FILE_APPEND);
 
-  if (!file)
-  {
-    DEBUG_PRINTLN(F("    Failed to open file!"));
-    return;
-  }
+    if (!file)
+    {
+        DEBUG_PRINTLN(F("    Failed to open file!"));
+        return;
+    }
 
-  //debugUART.println("    Writing file...");
-  file.println(contents);
+    // debugUART.println("    Writing file...");
+    file.println(contents);
 
-  // Close the file 
-  DEBUG_PRINTLN("  Done.");
-  file.close();
+    // Close the file
+    DEBUG_PRINTLN("  Done.");
+    file.close();
 }
-
-
 
 #endif //__DIGAME_FILE_H__

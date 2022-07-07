@@ -9,15 +9,15 @@
 #ifndef __DIGAME_NETWORK_H__
 #define __DIGAME_NETWORK_H__
 #include <digameDebug.h>
-#include <digamePowerMgt.h> 
+#include <digamePowerMgt.h>
 #include <WiFi.h>       // WiFi stack
 #include <HTTPClient.h> // To post to the ParkData Server
 
 struct NetworkConfig
 {
-    String hostName  = "Digame Device";
-    String ssid      = "YOUR_SSID";
-    String password  = "YOUR_PASSSORD";
+    String hostName = "Digame Device";
+    String ssid = "YOUR_SSID";
+    String password = "YOUR_PASSSORD";
     // serverURL is the destination for the postJSON function below
     String serverURL = "YOUR_SERVER_URL";
 };
@@ -37,9 +37,10 @@ String getMACAddress()
     WiFi.macAddress(mac);
 
     char buffer[3];
-    for (int i = 0; i<5; i++){
-      sprintf(buffer, "%02x", mac[i]);
-      retString = String(retString + buffer + ":");
+    for (int i = 0; i < 5; i++)
+    {
+        sprintf(buffer, "%02x", mac[i]);
+        retString = String(retString + buffer + ":");
     }
     sprintf(buffer, "%02x", mac[5]);
     retString = String(retString + buffer);
@@ -55,11 +56,11 @@ String getShortMACAddress()
     String retString;
 
     WiFi.macAddress(mac);
-    //DEBUG_PRINTLN(mac);
-    char buffer[3]; 
-    sprintf (buffer, "%02x", mac[4]);
+    // DEBUG_PRINTLN(mac);
+    char buffer[3];
+    sprintf(buffer, "%02x", mac[4]);
     retString = String(retString + buffer);
-    sprintf (buffer, "%02x", mac[5]);
+    sprintf(buffer, "%02x", mac[5]);
     retString = String(retString + buffer);
 
     return retString;
@@ -69,7 +70,7 @@ String getShortMACAddress()
 // Enable WiFi and log into the network
 bool enableWiFi(NetworkConfig config)
 {
-    String ssid     = config.ssid;
+    String ssid = config.ssid;
     String password = config.password;
 
     WiFi.disconnect();   // Disconnect the network
@@ -103,12 +104,12 @@ bool enableWiFi(NetworkConfig config)
     }
 
     DEBUG_PRINT("Elapsed Time (ms): ");
-    DEBUG_PRINTLN((millis()-tstart));
+    DEBUG_PRINTLN((millis() - tstart));
 
     msLastConnectionAttempt = millis(); // Timer value of the last time we tried to connect to the wifi.
 
     if (timedout)
-    { 
+    {
         WiFi.disconnect();
         wifiConnected = false;
         return false;
@@ -151,12 +152,11 @@ void disableWiFi()
 // in a smart way.
 bool postJSON(String jsonPayload, NetworkConfig config)
 {
-    //DEBUG_PRINT("postJSON Running on Core #: ");
-    //DEBUG_PRINTLN(xPortGetCoreID());
-    // DEBUG_PRINT("Free Heap: ");
-    // DEBUG_PRINTLN(ESP.getFreeHeap());
+    // DEBUG_PRINT("postJSON Running on Core #: ");
+    // DEBUG_PRINTLN(xPortGetCoreID());
+    //  DEBUG_PRINT("Free Heap: ");
+    //  DEBUG_PRINTLN(ESP.getFreeHeap());
 
-    
     if (WiFi.status() != WL_CONNECTED)
     {
         DEBUG_PRINTLN("WiFi Connection Lost.");
@@ -171,8 +171,8 @@ bool postJSON(String jsonPayload, NetworkConfig config)
     // Your Domain name with URL path or IP address with path
     http.begin(config.serverURL);
 
-    //http.setReuse(false);
-    
+    // http.setReuse(false);
+
     // http.begin("http://199.21.201.53/trailwaze/zion/lidar_sensor_import.php");
 
     DEBUG_PRINT("  JSON payload length: ");
@@ -182,7 +182,7 @@ bool postJSON(String jsonPayload, NetworkConfig config)
 
     // If you need an HTTP request with a content type: application/json, use the following:
     http.addHeader("Content-Type", "application/json");
-    
+
     t1 = millis();
     int httpResponseCode = http.POST(jsonPayload);
 
@@ -201,14 +201,13 @@ bool postJSON(String jsonPayload, NetworkConfig config)
 
     // Free resources
     http.end();
-   // WiFi.disconnect(true);
+    // WiFi.disconnect(true);
 
-    delay(500); // Give resources a bit to free... 
+    delay(500); // Give resources a bit to free...
 
     if (
-        (httpResponseCode == 200) || 
-        (httpResponseCode == 303) 
-       )
+        (httpResponseCode == 200) ||
+        (httpResponseCode == 303))
     {
         return true;
     }
@@ -216,7 +215,6 @@ bool postJSON(String jsonPayload, NetworkConfig config)
     {
         return false;
     }
-
 }
 
 #endif //__DIGAME_NETWORK_H__
