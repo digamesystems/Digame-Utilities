@@ -17,7 +17,6 @@ TFMPlus tfmP;                 // Create a TFMini Plus object
 int16_t initLIDARDist = 999; // The initial distance measured by the lidar when it wakes up.
 
 const int lidarSamples = 25;
-String lastDistanceMeasured = "0";
 
 CircularBuffer<int, lidarSamples> lidarBuffer; // We're going to hang onto the last 100 raw data
                                                //   points to visualize what the sensor sees

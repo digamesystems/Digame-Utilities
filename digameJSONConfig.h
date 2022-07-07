@@ -34,11 +34,18 @@
 
 
 // Counter values for each counter TODO:add to config.
+unsigned long count = 0;      // The number of vehicle events recorded
+unsigned long inCount = 0; 
+unsigned long outCount = 0;
 String str1Count = "0";
 String str2Count = "0"; 
 String str3Count = "0"; 
 String str4Count = "0"; 
 String strTotal  = "0";
+String lastDistanceMeasured = "0";
+String lastDistanceMeasured2 = "0";
+
+
 
 // Our configuration structure.
 //

@@ -50,9 +50,6 @@ const char* http_username = "admin";
 const char* http_password = "admin";
 
 unsigned long msLastWebPageEventTime;
-String lastDistanceMeasured = "0";
-String lastDistanceMeasured2 = "0";
-
 
 
 //*******************************************************************************************************
