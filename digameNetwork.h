@@ -148,8 +148,8 @@ void disableWiFi()
 }
 
 //*****************************************************************************
-// Save a single JSON message to the server. TODO: Deal with retries, etc.
-// in a smart way.
+// Save a single JSON message to the server. TODO: Better option for retries.
+//*****************************************************************************
 bool postJSON(String jsonPayload, Config config)
 {
 

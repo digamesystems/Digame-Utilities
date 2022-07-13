@@ -24,6 +24,8 @@ CircularBuffer<int, lidarSamples> lidarBuffer; // We're going to hang onto the l
 CircularBuffer<int, 150> lidarHistoryBuffer;   // A longer buffer for visualization of the history
                                                //   before the algorithm makes a decision.
 
+String lidarStreamEntry = "";  // A string representation of the last data acquired. 
+
 const int histogramSize = 121; // Playing with a histogram of distances to see if we can learn
                                //   how to determine lane posistions on our own. 10 cm bins
 unsigned long lidarDistanceHistogram[histogramSize];
@@ -36,6 +38,7 @@ bool initLIDAR(bool);
 void showLIDARDistanceHistogram();
 void clearLIDARDistanceHistogram();
 String getDistanceHistogramString();
+String getLIDARStreamEntry(){ return lidarStreamEntry;}
 
 bool initLIDARCom(bool triggeredMode = false)
 {
@@ -571,11 +574,6 @@ int processLIDARSignal3(Config config)
 
   int threshold = config.lidarResidenceTime.toInt(); // Level of signal to count as present.
 
-  // Trying an experiment. Let the LIDAR run free and poll it occassionally.
-  // tfmP.sendCommand(TRIGGER_DETECTION, 0); // Trigger a LIDAR measurment
-  // delay(lidarUpdateRate);                 // Wait a bit...
-  // lightSleepMSec(lidarUpdateRate);
-
   lidarResult = tfmP.getData(tfDist, tfFlux, tfTemp); // Grab the results
 
   if ((lidarResult) || (tfmP.status == TFMP_WEAK)) // Process good measurements
@@ -683,27 +681,18 @@ int processLIDARSignal3(Config config)
       carEvent2 = 0;
     }
 
-    // For the serial plotter.
-    if (config.showDataStream == "true")
-    {
-      DEBUG_PRINT(tfDist);
-      DEBUG_PRINT(",");
-      DEBUG_PRINT(config.lidarZone1Max.toFloat());
-      DEBUG_PRINT(",");
-      DEBUG_PRINT(config.lidarZone1Min.toFloat());
-      DEBUG_PRINT(",");
-      DEBUG_PRINT(config.lidarZone2Max.toFloat());
-      DEBUG_PRINT(",");
-      DEBUG_PRINT(config.lidarZone2Min.toFloat());
-      DEBUG_PRINT(",");
-      DEBUG_PRINT(carEvent1);
-      DEBUG_PRINT(",");
-      DEBUG_PRINT(carEvent2);
-      DEBUG_PRINT(",");
-      DEBUG_PRINT(zone1Strength);
-      DEBUG_PRINT(",");
-      DEBUG_PRINTLN(bufferInteg1);
-    }
+    lidarStreamEntry = "";
+
+    lidarStreamEntry = \
+      String(tfDist) + " " + \
+      config.lidarZone1Max + " " + \
+      config.lidarZone1Min + " " + \
+      config.lidarZone2Max + " " + \
+      config.lidarZone2Min + " " + \
+      String(carEvent1) + " " + \
+      String(carEvent2) + " " + \
+      String(zone1Strength) + " " + 
+      String (bufferInteg1);
 
     if (config.logLidarEvents == "checked")
     {
