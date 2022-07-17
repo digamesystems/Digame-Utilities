@@ -30,7 +30,7 @@ String sendReceiveReyax(String s)
 
   String loraMsg;
 
-  //debugUART.print("Sending: ");
+  //debugUART.print("    Sending: ");
   //debugUART.println(s);
   //Send the command
   LoRaUART.print(s + "\r\n");
@@ -43,7 +43,7 @@ String sendReceiveReyax(String s)
 
   loraMsg = LoRaUART.readStringUntil('\n');
 
-  debugUART.print("Received: ");
+  debugUART.print("    Received: ");
   debugUART.println(loraMsg);
   return loraMsg;
 }
@@ -98,6 +98,14 @@ void wakeReyax(Config &config){
   configureLoRa(config); // Calling Mode = 0 resets the module. Settings are lost.
 }
 
+
+void RXFlushReyax(){
+  while(LoRaUART.available() > 0) {
+    char t = LoRaUART.read();
+  }
+}
+
+
 //****************************************************************************************
 // Sends a json message to another LoRa module and listens for an ACK reply.
 bool sendReceiveLoRa(String msg, Config &config)
@@ -149,6 +157,10 @@ bool sendReceiveLoRa(String msg, Config &config)
     return false;
   }
 
+
+  // Empty any left over messages from previous activity
+  //RXFlushReyax();
+  
   // Send the message. - Base stations use address 1.
   String reyaxMsg = "AT+SEND=1," + String(msg.length()) + "," + msg;
 
@@ -236,10 +248,10 @@ if (showDebugMsgs){
         debugUART.println();
     }
     LoRaRetryCount++;
+    vTaskDelay(2000 / portTICK_PERIOD_MS); // Two seconds between failed messages
+
     return false;
   }
-
-  vTaskDelay(2000 / portTICK_PERIOD_MS); // Two seconds between failed messages
 
   return true;
   
