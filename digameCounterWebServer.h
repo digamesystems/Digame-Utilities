@@ -330,7 +330,8 @@ void initWebServer() {
                                      config.sens2Zone2+","+\
                                      config.sens3Zone2+","+\
                                      config.sens4Zone2                                     
-                                     ); 
+                                     );
+    msLastWebPageEventTime = millis(); 
   });
 
   server.on("/uptime", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -348,5 +349,15 @@ void initWebServer() {
   AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   server.begin();
 }
+
+
+void restartWebServer(){
+  //AsyncElegantOTA.end();
+  //delay(500);
+  server.end();
+  delay(500);
+  initWebServer();
+}
+
 
 #endif
