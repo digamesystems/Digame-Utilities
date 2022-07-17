@@ -486,7 +486,7 @@ void displayCountersSummaryScreen(String total, String summary)
 //******************************************************************************************
 {
   GxEPD2_GFX &display = getDisplay();
-  displayTitles("SUMMARY", "Total: " + total);
+  displayTitles("SUMMARY", total);
   display.setCursor(0, 70);
   display.print(summary);
   displayCopyright();
