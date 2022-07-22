@@ -43,8 +43,8 @@ String sendReceiveReyax(String s)
 
   loraMsg = LoRaUART.readStringUntil('\n');
 
-  debugUART.print("    Received: ");
-  debugUART.println(loraMsg);
+  //debugUART.print("    Received: ");
+  //debugUART.println(loraMsg);
   return loraMsg;
 }
 

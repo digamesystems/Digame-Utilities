@@ -38,11 +38,11 @@
 #include <digameTime.h>
 
 
-
-
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
  
+bool useOTAFlag = false;
+bool restartWebServerFlag = false;
 bool clearCounterFlag = false;
 bool resetFlag = false;
 unsigned long upTimeMillis=0;
@@ -172,7 +172,7 @@ void initWebServer() {
   Serial.println("  Initializing SPIFFS...");
 
   if(!SPIFFS.begin()){
-    Serial.println("    File System Mount Failed");
+    Serial.println("    File System Mount Failed!");
   } else {
     Serial.println("    SPIFFS up!");
   }
@@ -180,10 +180,20 @@ void initWebServer() {
   msLastWebPageEventTime = millis(); // Initialize the web page event timer variable
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    DEBUG_PRINTLN("server.on('/') callaback");
+    DEBUG_PRINTLN("WebTimer: " + String(millis() - msLastWebPageEventTime));
+    if (millis()-msLastWebPageEventTime > 60000) {
+      restartWebServerFlag = true;
+      DEBUG_PRINTLN("Setting Restart Web Server Flag...");
+      return;
+    }
     //request->send(SD, "/index.html", String(), false, processor);
     if(!request->authenticate(http_username, http_password))
       return request->requestAuthentication();
+    DEBUG_PRINTLN("authenticated");
     request->send(SPIFFS, "/index.html", String(), false, processor);
+    DEBUG_PRINTLN("index.html served");
+    DEBUG_PRINTLN();
   });
 
   server.on("/config", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -315,22 +325,22 @@ void initWebServer() {
 
   server.on("/distance", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", lastDistanceMeasured + "," +\
-                                     String(config.lidarZone1Count) + "," +\
-                                     lastDistanceMeasured2 + "," +\
-                                     String(config.lidarZone2Count));
+                                      String(config.lidarZone1Count) + "," +\
+                                      lastDistanceMeasured2 + "," +\
+                                      String(config.lidarZone2Count));
     msLastWebPageEventTime = millis();
   });
 
   server.on("/counters", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", config.sens1Zone1+","+\
-                                     config.sens2Zone1+","+\
-                                     config.sens3Zone1+","+\
-                                     config.sens4Zone1+","+\
-                                     config.sens1Zone2+","+\
-                                     config.sens2Zone2+","+\
-                                     config.sens3Zone2+","+\
-                                     config.sens4Zone2                                     
-                                     );
+                                      config.sens2Zone1+","+\
+                                      config.sens3Zone1+","+\
+                                      config.sens4Zone1+","+\
+                                      config.sens1Zone2+","+\
+                                      config.sens2Zone2+","+\
+                                      config.sens3Zone2+","+\
+                                      config.sens4Zone2                                     
+                                      );
     msLastWebPageEventTime = millis(); 
   });
 
@@ -340,22 +350,25 @@ void initWebServer() {
     //debugUART.print("/uptime: ");
     //debugUART.println(s);
     request->send(200, "text/plain", s);  // Report in seconds
+    msLastWebPageEventTime = millis(); 
   });
 
 
   //server.serveStatic("/", SD, "/");
   server.serveStatic("/", SPIFFS, "/");
  
+
   AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   server.begin();
+  restartWebServerFlag=false;
+
 }
 
 
 void restartWebServer(){
-  //AsyncElegantOTA.end();
-  //delay(500);
+  DEBUG_PRINTLN("Shutting down...");
   server.end();
-  delay(500);
+  DEBUG_PRINTLN("Restarting...");
   initWebServer();
 }
 
