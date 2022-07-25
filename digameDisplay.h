@@ -113,16 +113,16 @@ void initDisplay()
   }
 
   DEBUG_PRINTLN("    Current Display Type: " + String(EEPROM.read(0)));
-  DEBUG_PRINT("    Change? y/[n] (You have 5 sec to decide) ");
+  DEBUG_PRINT("    Change? y/[n] (You have 2 sec to decide) ");
   unsigned long t1 = millis();
   unsigned long t2 = t1;
 
   while (
       !(debugUART.available()) &&
-      ((t2 - t1) < 5000))
+      ((t2 - t1) < 2000))
   {
     t2 = millis();
-    delay(500); // wait for data from the user...
+    delay(100); // wait for data from the user...
     DEBUG_PRINT(".");
   }
 

@@ -182,12 +182,7 @@ void initWebServer() {
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     DEBUG_PRINTLN("server.on('/') callaback");
     DEBUG_PRINTLN("WebTimer: " + String(millis() - msLastWebPageEventTime));
-    if (millis()-msLastWebPageEventTime > 60000) {
-      restartWebServerFlag = true;
-      DEBUG_PRINTLN("Setting Restart Web Server Flag...");
-      return;
-    }
-    //request->send(SD, "/index.html", String(), false, processor);
+
     if(!request->authenticate(http_username, http_password))
       return request->requestAuthentication();
     DEBUG_PRINTLN("authenticated");
@@ -195,6 +190,15 @@ void initWebServer() {
     DEBUG_PRINTLN("index.html served");
     DEBUG_PRINTLN();
   });
+
+  
+  server.on("/restart", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(200, "text/plain", "Restarting. Reload page in 60 sec...");
+    restartWebServerFlag = true;
+    DEBUG_PRINTLN("Setting Restart Web Server Flag...");
+    return;
+  });
+
 
   server.on("/config", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SD, "/params.txt", "text/plain",true);
