@@ -63,6 +63,12 @@ struct Config
   // String serverURL           = "https://trailwaze.info/zion/lidar_sensor_import.php"; // The ParkData server URL
   String serverURL = "http://199.21.201.53/trailwaze/zion/lidar_sensor_import.php"; // http server. Faster!
 
+  // MQTT - Experimental. A second reporting channel in addition to posts to the serverURL above
+  String useMQTT = "";
+  String mqttURL = "test.mosquitto.org";
+  String mqttPort = "1883";
+
+  
   // Debugging
   String showDataStream = "false";
 
@@ -78,6 +84,7 @@ struct Config
   String counterID = "1";
 
   // LoRa:
+  String loraBaseStationAddress = "1";
   String loraAddress = "10";
   String loraNetworkID = "7";
   String loraBand = "915000000";
@@ -249,6 +256,11 @@ void loadConfiguration(const char *filename, Config &config)
   initConfigEntry(&config.password, (const char *)doc["network"]["password"]);
   initConfigEntry(&config.serverURL, (const char *)doc["network"]["serverURL"]);
 
+  initConfigEntry(&config.useMQTT, (const char *)doc["mqtt"]["useMQTT"]);
+  initConfigEntry(&config.mqttURL, (const char *)doc["mqtt"]["mqttURL"]);
+  initConfigEntry(&config.mqttPort, (const char *)doc["mqtt"]["mqttPort"]);
+
+  initConfigEntry(&config.loraBaseStationAddress, (const char *)doc["lora"]["baseStationAddress"]);
   initConfigEntry(&config.loraAddress, (const char *)doc["lora"]["address"]);
   initConfigEntry(&config.loraNetworkID, (const char *)doc["lora"]["networkID"]);
   initConfigEntry(&config.loraBand, (const char *)doc["lora"]["band"]);
@@ -341,11 +353,17 @@ void saveConfiguration(const char *filename, Config &config)
 
   // Copy values from the Config struct to the JsonDocument
   doc["name"] = config.deviceName;
+
   doc["network"]["heartbeatInterval"] = config.heartbeatInterval;
   doc["network"]["ssid"] = config.ssid;
   doc["network"]["password"] = config.password;
   doc["network"]["serverURL"] = config.serverURL;
 
+  doc["mqtt"]["useMQTT"] = config.useMQTT;
+  doc["mqtt"]["mqttURL"] = config.mqttURL;
+  doc["mqtt"]["mqttPort"] = config.mqttPort;
+
+  doc["lora"]["baseStationAddress"] = config.loraBaseStationAddress;
   doc["lora"]["address"] = config.loraAddress;
   doc["lora"]["networkID"] = config.loraNetworkID;
   doc["lora"]["band"] = config.loraBand;
