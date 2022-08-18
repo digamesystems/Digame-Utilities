@@ -73,6 +73,11 @@ String processor(const String& var){
   if(var == "config.password")  return F(String(config.password).c_str());
   if(var == "config.serverURL") return F(String(config.serverURL).c_str());
 
+  if(var == "config.useMQTT")   return F(String(config.useMQTT).c_str());
+  if(var == "config.mqttURL")      return F(String(config.mqttURL).c_str());
+  if(var == "config.mqttPort")      return F(String(config.mqttPort).c_str());
+
+  if(var == "config.loraBaseStationAddress") return F(String(config.loraBaseStationAddress).c_str());
   if(var == "config.loraAddress") return F(String(config.loraAddress).c_str());
   if(var == "config.loraNetworkID") return F(String(config.loraNetworkID).c_str());
   if(var == "config.loraBand") return F(String(config.loraBand).c_str());
@@ -193,7 +198,7 @@ void initWebServer() {
 
   
   server.on("/restart", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", "Restarting. Reload page in 60 sec...");
+    request->send(200, "text/plain", "Restarting web server. Reload page in 60 sec...");
     restartWebServerFlag = true;
     DEBUG_PRINTLN("Setting Restart Web Server Flag...");
     return;
@@ -251,13 +256,16 @@ void initWebServer() {
     config.logVehicleEvents = "";
     config.logLidarEvents ="";
     config.logRawData = "";
+    config.useMQTT = "";
 
     processQueryParam(request, "logbootevents", &config.logBootEvents);
     processQueryParam(request, "logheartbeatevents", &config.logHeartBeatEvents);
     processQueryParam(request, "logvehicleevents", &config.logVehicleEvents);
     processQueryParam(request, "lograwdata", &config.logRawData);
     processQueryParam(request, "loglidarevents", &config.logLidarEvents);
-    
+    processQueryParam(request, "usemqtt", &config.useMQTT);
+    processQueryParam(request, "mqtturl", &config.mqttURL);
+    processQueryParam(request, "mqttport", &config.mqttPort);
 
     String strReboot;
     processQueryParam(request, "reboot", &strReboot);
@@ -281,6 +289,7 @@ void initWebServer() {
   });
 
   server.on("/loraparams",HTTP_GET, [](AsyncWebServerRequest *request){
+    processQueryParam(request, "basestationaddress", &config.loraBaseStationAddress);
     processQueryParam(request, "address", &config.loraAddress);
     processQueryParam(request, "networkid", &config.loraNetworkID);
     processQueryParam(request, "band", &config.loraBand);
