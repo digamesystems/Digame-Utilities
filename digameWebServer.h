@@ -150,8 +150,9 @@ void processWebClient(String deviceType, WiFiClient client, Config& config){
               }
 
               if (getQueryParam(header, "reboot") == "true"){
-                debugUART.println("REBOOT Requested!");
+                debugUART.println("/REBOOT Requested!");
                 delay(1000);
+                vTaskDelay(1000 / portTICK_PERIOD_MS);
                 ESP.restart();
 
               }
