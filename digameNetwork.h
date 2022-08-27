@@ -78,15 +78,17 @@ bool enableWiFi(Config config)
     DEBUG_PRINTLN("    SSID: " + ssid);
     DEBUG_PRINTLN("    Password: " + password);
     DEBUG_PRINTLN("    Server URL: " + config.serverURL);
-    setCpuFrequencyMhz(80);
+    
     WiFi.disconnect();   // Disconnect the network
     WiFi.mode(WIFI_OFF); // Switch WiFi off
 
-    delay(1000); // Wait a bit...
-
+    //setCpuFrequencyMhz(80); //TODO: Figure out a better place for this.
     
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
     WiFi.mode(WIFI_STA); // Station mode
-    delay(250);
+    vTaskDelay(250 / portTICK_PERIOD_MS);
+
     String hostName = config.deviceName;
     hostName.replace(" ", "_");
     WiFi.setHostname(hostName.c_str());         // define hostname
@@ -98,7 +100,8 @@ bool enableWiFi(Config config)
     DEBUG_PRINT("    ")
     while (WiFi.status() != WL_CONNECTED)
     {
-        delay(1000);
+        //delay(1000);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
         DEBUG_PRINT(".");
         if ((millis() - tstart) > wifiTimeout)
         {
@@ -213,6 +216,10 @@ bool postJSON(String jsonPayload, Config config)
     }
     else
     {
+        msLastPostTime = millis(); // Log the time of the last successful post
+        // TODO: verify this is the right approach. if we have a bunch of network
+        // errors, not setting msLastPostTime here, might cause us to put the wifi 
+        // to sleep over and over...
         return false;
     }
 }
