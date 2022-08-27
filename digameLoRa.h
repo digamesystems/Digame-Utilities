@@ -20,7 +20,7 @@ void initLoRa()
 {
   LoRaUART.begin(115200, SERIAL_8N1, 25, 33);
   delay(1500);
-  //LoRaUART.setTimeout(10000); //   timout on .available()
+  LoRaUART.setTimeout(3000); //   timout on .available()
 }
 
 //****************************************************************************************
