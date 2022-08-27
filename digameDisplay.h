@@ -79,7 +79,10 @@ void showBlack();
 // Higher-Level Display Functions
 void displayTitle(String title);
 void displayCenteredText(String title, String s1="", String s2="", String s3="", String s4="", String s5="", String s6="", String s7="", String s8="");
+void displayCenteredTextLarge(String title, String s1="", String s2="", String s3="", String s4="", String s5="", String s6="", String s7="", String s8="");
+
 void displayRawText(String Title, String s);
 void displayCopyright(); // A small copyright declaration at the bottom of the screen.
+void displayUpdate();
 
 

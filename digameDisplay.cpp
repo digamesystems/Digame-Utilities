@@ -61,7 +61,8 @@ void initDisplay()
   DEBUG_PRINTLN("    Reading EEPROM");
 
   EEPROM.begin(10);
-  delay(1000);
+  //delay(1000);
+  vTaskDelay(1000 / portTICK_PERIOD_MS);
 
   if (EEPROM.read(0) == 255)
   {
@@ -78,7 +79,8 @@ void initDisplay()
       ((t2 - t1) < 2000))
   {
     t2 = millis();
-    delay(100); // wait for data from the user...
+    //delay(100); // wait for data from the user...
+    vTaskDelay(100 / portTICK_PERIOD_MS);
     DEBUG_PRINT(".");
   }
 
@@ -100,7 +102,8 @@ void initDisplay()
 
     while (!(DEBUG_UART.available()))
     {
-      delay(10); // wait for data from the user...
+      //delay(10); // wait for data from the user...
+      vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 
     String inString = DEBUG_UART.readStringUntil('\n');
@@ -265,6 +268,11 @@ void displayTitle(String title)
   centerPrint(title, 1);
 }
 
+void displayUpdate(){
+  GxEPD2_GFX &display = getDisplay();  
+  do  {  } while (display.nextPage());
+}
+
 
 //******************************************************************************************
 // A small copyright declaration at the bottom of the screen.
@@ -284,7 +292,7 @@ void displayCopyright()
   centerPrint("HEIMDALL VCS Family", offset);
   centerPrint("(c) 2022, Digame Systems.", offset + lineHeight);
   centerPrint("All rights reserved.", offset + 2 * lineHeight);
-  do  {  } while (display.nextPage());
+  displayUpdate();
 }
 
 
@@ -298,7 +306,7 @@ void displayRawText(String title, String s)
   int16_t tbx, tby;
   uint16_t tbw, tbh;
   display.getTextBounds("TEST", 0, 0, &tbx, &tby, &tbw, &tbh);
-  int16_t offset = 3 * tbh/2;
+  int16_t offset = 2 * tbh;
   uint16_t x = 0;
   uint16_t y = offset; 
   display.setCursor(x, y);
@@ -320,6 +328,33 @@ void displayCenteredText(String title, String s1, String s2, String s3, String s
   
   int16_t offset = 2*tbh;
   int16_t lineHeight = tbh + 0.2*tbh;
+
+  centerPrint (s1, offset);
+  centerPrint (s2, offset + 1 * lineHeight);
+  centerPrint (s3, offset + 2 * lineHeight);
+  centerPrint (s4, offset + 3 * lineHeight);
+  centerPrint (s5, offset + 4 * lineHeight);
+  centerPrint (s6, offset + 5 * lineHeight);
+  centerPrint (s7, offset + 6 * lineHeight);
+  centerPrint (s8, offset + 7 * lineHeight);
+
+}
+
+//******************************************************************************************
+void displayCenteredTextLarge(String title, String s1, String s2, String s3, String s4, String s5, String s6, String s7, String s8)
+//******************************************************************************************
+{
+  displayTitle(title);  
+  GxEPD2_GFX &display = getDisplay();
+  display.setTextSize(3);
+
+  int16_t tbx, tby;
+  uint16_t tbw, tbh;
+  
+  display.getTextBounds("TEXT", 0, 0, &tbx, &tby, &tbw, &tbh); // Get the height of a line of text
+  
+  int16_t offset     = (int16_t)(2.5 * tbh);
+  int16_t lineHeight = tbh + 0.2 * tbh;
 
   centerPrint (s1, offset);
   centerPrint (s2, offset + 1 * lineHeight);
