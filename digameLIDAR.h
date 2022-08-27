@@ -43,7 +43,8 @@ String getLIDARStreamEntry(){ return lidarStreamEntry;}
 bool initLIDARCom(bool triggeredMode = false)
 {
   tfMiniUART.begin(115200); // Initialize TFMPLus device serial port.
-  delay(1000);              // Give port time to initalize
+  //delay(1000);              // Give port time to initalize
+  vTaskDelay(1000 / portTICK_PERIOD_MS);
   tfmP.begin(&tfMiniUART);  // Initialize device library object and...
                             // pass device serial port to the object.
 
@@ -55,7 +56,8 @@ bool initLIDARCom(bool triggeredMode = false)
 
     DEBUG_PRINTLN("Done. (LIDAR Sensor initialized)");
     // hwStatus+="   LIDAR: OK\n\n";
-    delay(500);
+    //delay(500);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
     if (triggeredMode)
     {
       DEBUG_PRINT("    Adjusting LIDAR Frame Rate... ");
@@ -64,7 +66,8 @@ bool initLIDARCom(bool triggeredMode = false)
         DEBUG_PRINTLN("Frame Rate Adjusted.");
       }
     }
-    delay(1000);
+    //delay(1000);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 
   return true;
@@ -85,7 +88,8 @@ bool initLIDAR(bool triggeredMode = false)
     for (int i = 0; i < 3; i++)
     {                                         // First reading may be wonky
       tfmP.sendCommand(TRIGGER_DETECTION, 0); // Trigger a LIDAR measurment
-      delay(200);                             // Wait a bit...
+      //delay(200);                             // Wait a bit...
+      vTaskDelay(200 / portTICK_PERIOD_MS);
       result = tfmP.getData(dist);            // Grab the results
     }
     // DEBUG_PRINT("Initial Result: ");
@@ -237,7 +241,8 @@ int processLIDARSignal(Config config)
   bool lidarResult = false;
 
   tfmP.sendCommand(TRIGGER_DETECTION, 0); // Trigger a LIDAR measurment
-  delay(lidarUpdateRate);                 //
+  //delay(lidarUpdateRate);   
+  vTaskDelay(lidarUpdateRate / portTICK_PERIOD_MS);              //
 
   lidarResult = tfmP.getData(tfDist, tfFlux, tfTemp);
   /*
@@ -410,7 +415,8 @@ int processLIDARSignal2(Config config)
   bool lidarResult = false; // return value from reading the LIDAR sensor
 
   tfmP.sendCommand(TRIGGER_DETECTION, 0); // Trigger a LIDAR measurment
-  delay(lidarUpdateRate);                 // Wait a bit...
+ // delay(lidarUpdateRate);                 // Wait a bit...
+  vTaskDelay(lidarUpdateRate / portTICK_PERIOD_MS);
 
   lidarResult = tfmP.getData(tfDist, tfFlux, tfTemp); // Grab the results
 
