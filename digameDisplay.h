@@ -52,18 +52,17 @@ static GxEPD2_GFX *mainDisplay;
 
 //******************************************************************************************
 #if defined(ESP8266) || defined(ESP32)
-#include <StreamString.h>
-#define PrintString StreamString
+  #include <StreamString.h>
+  #define PrintString StreamString
 #else
-
-class PrintString : public Print, public String
-{
-public:
-  size_t write(uint8_t data) override
+  class PrintString : public Print, public String
   {
-    return concat(char(data));
+  public:
+    size_t write(uint8_t data) override
+    {
+      return concat(char(data));
+    };
   };
-};
 #endif
 
 GxEPD2_GFX &getDisplay();

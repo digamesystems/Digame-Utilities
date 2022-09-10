@@ -161,16 +161,16 @@ bool sendReceiveLoRa(String msg, Config &config)
   // Empty any left over messages from previous activity
   //RXFlushReyax();
   
-  // Send the message. - Base stations use address 1.
+  // Send the message. - Base stations use address 1 by default.
   String reyaxMsg = "AT+SEND=" + config.loraBaseStationAddress+ "," + String(msg.length()) + "," + msg;
 
-if (showDebugMsgs){
-  debugUART.print("Message Length: ");
-  debugUART.println(reyaxMsg.length());
-  
-  debugUART.print("Message: ");
-  debugUART.println(reyaxMsg);
-}
+  if (showDebugMsgs){
+    debugUART.print("Message Length: ");
+    debugUART.println(reyaxMsg.length());
+    
+    debugUART.print("Message: ");
+    debugUART.println(reyaxMsg);
+  }
 
   LoRaUART.println(reyaxMsg);
 
