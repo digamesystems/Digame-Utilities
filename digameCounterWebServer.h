@@ -36,6 +36,7 @@
 #include <digameJSONConfig.h>
 #include <digameNetwork.h>
 #include <digameTime.h>
+#include <digameDebug.h>
 
 
 // Create AsyncWebServer object on port 80
@@ -55,12 +56,17 @@ unsigned long msLastWebPageEventTime;
 //*******************************************************************************************************
 String processor(const String& var){
   
-  //debugUART.println("Hello from processor");
-  //debugUART.println(var);
+  //DEBUG_PRINTLN("Hello from processor");
+  //DEBUG_PRINTLN(var);
   
   if(var == "config.lidarZone1Count") return F(String(config.lidarZone1Count).c_str());
   
-  if(var == "config.deviceName") return F(config.deviceName.c_str()); 
+  if(var == "config.deviceName") { 
+    DEBUG_PRINTLN("config.deviceName: " + config.deviceName);
+    return F(config.deviceName.c_str());
+  }
+
+
   if(var == "STREAMING_ON"){if  (config.showDataStream == "true") return F("checked"); } 
   if(var == "STREAMING_OFF"){if (config.showDataStream == "false") return F("checked"); }   
   if(var == "MODEL")             return F(model.c_str());
@@ -131,17 +137,22 @@ String processor(const String& var){
 //*******************************************************************************************************
 void redirectHome(AsyncWebServerRequest* request){
     
+    DEBUG_PRINTLN("Hello from redirectHome");
+    DEBUG_PRINTLN("Saving config...");
+
     saveConfiguration(filename,config); // Save any changes before redirecting home
 
-
-    String RedirectUrl = "http://";
+    /*String RedirectUrl = "http://";
     if (ON_STA_FILTER(request)) {
       RedirectUrl += WiFi.localIP().toString();
     } else {
       RedirectUrl += WiFi.softAPIP().toString();
     }
     RedirectUrl += "/";
+    
     request->redirect(RedirectUrl);
+    */
+    request->redirect("/");
 }
 
 void processQueryParam(AsyncWebServerRequest *request, String qParam, String *targetParam){
@@ -162,8 +173,8 @@ void processQueryParam(AsyncWebServerRequest *request, String qParam, String *ta
       } else{
         *targetParam = String(p->value().c_str());
         targetParam->replace("%","_"); // Replace the template character. 
-                                     // 'Might cause problems w/ some Passwords...
-                                     // TODO: Think on this. Make '%' illegal in PW? 
+                                       // 'Might cause problems w/ some Passwords...
+                                       // TODO: Think on this. Make '%' illegal in PW? 
       }
     }
 }
@@ -184,19 +195,41 @@ void initWebServer() {
 
   msLastWebPageEventTime = millis(); // Initialize the web page event timer variable
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    DEBUG_PRINTLN("server.on('/') callaback");
-    DEBUG_PRINTLN("WebTimer: " + String(millis() - msLastWebPageEventTime));
+  /*
+ server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(200, "text/plain", "Hello, world");
+  });
+  */
 
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    DEBUG_PRINTLN("Hello from /");
+    //vTaskDelay((2000) / portTICK_PERIOD_MS);
+    DEBUG_PRINTLN("Free Heap: " + String(ESP.getFreeHeap()));
+    DEBUG_PRINTLN("server.on('/') callback");
+    DEBUG_PRINTLN("WebTimer: " + String(millis() - msLastWebPageEventTime));
     if(!request->authenticate(http_username, http_password))
       return request->requestAuthentication();
     DEBUG_PRINTLN("authenticated");
-    request->send(SPIFFS, "/index.html", String(), false, processor);
-    DEBUG_PRINTLN("index.html served");
+
+    DEBUG_PRINT("Processor ADDR: ");
+    char pAddr[80];
+    sprintf(pAddr, " Processor ADDR: %p\n", processor);
+    DEBUG_PRINTLN(pAddr);
+    
+    request->send(SPIFFS, "/index.htm", String(), false, processor);
+    DEBUG_PRINTLN("index.htm served");
     DEBUG_PRINTLN();
+    return;
   });
 
-  
+  server.on("/test",HTTP_GET, [](AsyncWebServerRequest *request){
+    DEBUG_PRINTLN("Hello from /test");
+    //vTaskDelay((2000) / portTICK_PERIOD_MS);
+    request->send(SPIFFS, "/test_mode.htm", String(), false, processor);
+    return;
+  });
+
+
   server.on("/restart", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", "Restarting web server. Reload page in 60 sec...");
     restartWebServerFlag = true;
@@ -273,11 +306,13 @@ void initWebServer() {
     if (strReboot=="true"){
       resetFlag = true;
     }
-    
+
+    DEBUG_PRINTLN("Hello from generalparams");
+    DEBUG_PRINTLN("1------")
+    DEBUG_PRINTLN("config.deviceName: " + config.deviceName);
+    DEBUG_PRINTLN("2-----");
     redirectHome(request);
      
-    
-    
   });
 
   server.on("/networkparams",HTTP_GET, [](AsyncWebServerRequest *request){
@@ -337,7 +372,12 @@ void initWebServer() {
   });
 
   server.on("/distance", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", lastDistanceMeasured + "," +\
+    //DEBUG_PRINTLN(lastDistanceMeasured);
+    //request->send(200, "text/plain", String(millis()) + "," +\
+    
+    DEBUG_PRINTLN(String(lastDistanceMeasured));
+
+    request->send(200, "text/plain", String(lastDistanceMeasured) + "," +\
                                       String(config.lidarZone1Count) + "," +\
                                       lastDistanceMeasured2 + "," +\
                                       String(config.lidarZone2Count));
@@ -362,6 +402,7 @@ void initWebServer() {
     //s = TimeToString(312847); // Testing. = (3 days 14 hours 54 min 7 seconds)
     //debugUART.print("/uptime: ");
     //debugUART.println(s);
+    DEBUG_PRINTLN("UPTIME: " + s); 
     request->send(200, "text/plain", s);  // Report in seconds
     msLastWebPageEventTime = millis(); 
   });

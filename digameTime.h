@@ -66,7 +66,7 @@ String TimeToString(unsigned long t)
   sprintf(str, "%03ld:%02d:%02d:%02d", d, h, m, s);
   // DEBUG_PRINT(" Uptime: ");
   String ret = String(str);
-  // DEBUG_PRINTLN(ret);
+  DEBUG_PRINTLN(ret);
   return ret;
 }
 

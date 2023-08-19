@@ -110,7 +110,7 @@ void RXFlushReyax(){
 // Sends a json message to another LoRa module and listens for an ACK reply.
 bool sendReceiveLoRa(String msg, Config &config)
 {
-  long timeout = 2500; // TODO: Make this part of the Config struct -- better yet,
+  long timeout = 3000; // TODO: Make this part of the Config struct -- better yet,
                        // calculate from the LoRa RF parameters and payload...
   bool replyPending = true;
  

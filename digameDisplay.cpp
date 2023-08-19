@@ -317,6 +317,7 @@ void displayRawText(String title, String s)
 void displayCenteredText(String title, String s1, String s2, String s3, String s4, String s5, String s6, String s7, String s8)
 //******************************************************************************************
 {
+  DEBUG_PRINTLN("Hello from DisplayCenteredText");
   displayTitle(title);  
   GxEPD2_GFX &display = getDisplay();
   display.setTextSize(2);

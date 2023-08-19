@@ -323,6 +323,9 @@ void loadConfiguration(const char *filename, Config &config)
 // Saves the configuration to a file
 void saveConfiguration(const char *filename, Config &config)
 {
+
+  DEBUG_PRINTLN("Hello from saveConfiguration()");
+  
   if (config.showDataStream == "false")
   {
     // debugUART.println("*   Saving parameters...");

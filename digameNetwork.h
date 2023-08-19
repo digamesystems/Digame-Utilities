@@ -220,6 +220,9 @@ bool postJSON(String jsonPayload, Config config)
         // TODO: verify this is the right approach. if we have a bunch of network
         // errors, not setting msLastPostTime here, might cause us to put the wifi 
         // to sleep over and over...
+
+        // LATER: -- If we have a mangled message, this will just send it over and over
+        // again. We need to figure out a way to detect that and stop trying to send it.
         return false;
     }
 }
