@@ -473,7 +473,7 @@ int processLIDARSignal2(Config config)
     zone1Strength = (100 * zone1Strength / lidarBuffer.size());
     zone2Strength = (100 * zone2Strength / lidarBuffer.size());
 
-    int threshold = config.lidarResidenceTime.toInt(); // Minimum 'car-ness' to count as 'car' TODO: Make tweakable
+    int threshold = config.lidarResidenceTime.toInt(); // Minimum 'car-ness' to count as 'car' 
 
     previousCarPresentLane1 = carPresentLane1;
     previousCarPresentLane2 = carPresentLane2;

@@ -43,7 +43,6 @@
 AsyncWebServer server(80);
  
 bool useOTAFlag = false;
-bool restartWebServerFlag = false;
 bool clearCounterFlag = false;
 bool resetFlag = false;
 unsigned long upTimeMillis=0;
@@ -105,6 +104,7 @@ String processor(const String& var){
   if(var == "config.logVehicleEvents") return F(String(config.logVehicleEvents).c_str());
   if(var == "config.logRawData") return F(String(config.logRawData).c_str());
   if(var == "config.logLidarEvents") return F(String(config.logLidarEvents).c_str());
+  if(var == "config.logDebugEvents") return F(String(config.logDebugEvents).c_str());
   
   if(var == "config.counterPopulation") return F(String(config.counterPopulation).c_str());
   if(var == "config.counterID") return F(String(config.counterID).c_str());
@@ -244,7 +244,7 @@ void initWebServer() {
   });
 
   server.on("/eventlog", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SD, "/eventlog.txt", "text/plain",true);
+    request->send(SD, "/eventlog.txt", "text/plain", true);
     //redirectHome(request);
   });
 
@@ -257,12 +257,12 @@ void initWebServer() {
 
   server.on("/histograph", HTTP_GET, [](AsyncWebServerRequest *request){
     debugUART.println("GET /histograph");
-    //request->send(200, "text/plain", getDistanceHistogramChartString(config));
+    request->send(200, "text/plain", getDistanceHistogramChartString(config));
   });
 
   server.on("/histo", HTTP_GET, [](AsyncWebServerRequest *request){
     debugUART.println("GET /histo");
-    //request->send(200, "text/plain", getDistanceHistogramString());
+    request->send(200, "text/plain", getDistanceHistogramString());
   });
   
   server.on("/counterreset",HTTP_GET, [](AsyncWebServerRequest *request){
@@ -289,6 +289,7 @@ void initWebServer() {
     config.logVehicleEvents = "";
     config.logLidarEvents ="";
     config.logRawData = "";
+    config.logDebugEvents = "";
     config.useMQTT = "";
 
     processQueryParam(request, "logbootevents", &config.logBootEvents);
@@ -296,6 +297,7 @@ void initWebServer() {
     processQueryParam(request, "logvehicleevents", &config.logVehicleEvents);
     processQueryParam(request, "lograwdata", &config.logRawData);
     processQueryParam(request, "loglidarevents", &config.logLidarEvents);
+    processQueryParam(request, "logdebugevents", &config.logDebugEvents);
     processQueryParam(request, "usemqtt", &config.useMQTT);
     processQueryParam(request, "mqtturl", &config.mqttURL);
     processQueryParam(request, "mqttport", &config.mqttPort);
@@ -414,6 +416,7 @@ void initWebServer() {
 
   AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   server.begin();
+  DEBUG_LOG("HTTP server started.");
   restartWebServerFlag=false;
 
 }
@@ -422,6 +425,7 @@ void initWebServer() {
 void restartWebServer(){
   DEBUG_PRINTLN("Shutting down...");
   server.end();
+  delay(2000);
   DEBUG_PRINTLN("Restarting...");
   initWebServer();
 }

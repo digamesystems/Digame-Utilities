@@ -43,6 +43,8 @@ String strTotal = "0";
 String lastDistanceMeasured = "0";
 String lastDistanceMeasured2 = "0";
 
+bool restartWebServerFlag = false; // Flag to restart the web server after a config change.
+
 // Our configuration structure.
 //
 struct Config
@@ -78,6 +80,7 @@ struct Config
   String logVehicleEvents = "";
   String logRawData = "";
   String logLidarEvents = "";
+  String logDebugEvents = "";
 
   // Counters
   String counterPopulation = "1";
@@ -287,17 +290,10 @@ void loadConfiguration(const char *filename, Config &config)
   initConfigEntry(&config.logVehicleEvents, (const char *)doc["log"]["vehicleEvents"]);
   initConfigEntry(&config.logRawData, (const char *)doc["log"]["rawData"]);
   initConfigEntry(&config.logLidarEvents, (const char *)doc["log"]["lidar"]);
+  initConfigEntry(&config.logDebugEvents, (const char *)doc["log"]["debug"]);
 
   initConfigEntry(&config.counterPopulation, (const char *)doc["counter"]["population"]);
   initConfigEntry(&config.counterID, (const char *)doc["counter"]["id"]);
-
-  /*
-    debugUART.println("Logging Params: ");
-    debugUART.println(config.logBootEvents);
-    debugUART.println(config.logHeartBeatEvents);
-    debugUART.println(config.logVehicleEvents);
-    debugUART.println(config.logRawData);
-  */
 
   initConfigEntry(&config.sens1Name, (const char *)doc["sensor"]["1"]["name"]);
   initConfigEntry(&config.sens1Addr, (const char *)doc["sensor"]["1"]["addr"]);
@@ -312,8 +308,6 @@ void loadConfiguration(const char *filename, Config &config)
   initConfigEntry(&config.sens4Addr, (const char *)doc["sensor"]["4"]["addr"]);
   initConfigEntry(&config.sens4MAC, (const char *)doc["sensor"]["4"]["mac"]);
 
-  // initConfigEntry(&config.displayType , (const char *)doc["displayType"]);
-
   // Close the file (Curiously, File's destructor doesn't close the file)
   file.close();
   printFile(filename);
@@ -325,14 +319,6 @@ void saveConfiguration(const char *filename, Config &config)
 {
 
   DEBUG_PRINTLN("Hello from saveConfiguration()");
-  
-  if (config.showDataStream == "false")
-  {
-    // debugUART.println("*   Saving parameters...");
-    //  Delete existing file, otherwise the configuration is appended to the file
-
-    // debugUART.println("    Erasing old file...");
-  }
 
   SD.remove(filename);
 
@@ -391,6 +377,8 @@ void saveConfiguration(const char *filename, Config &config)
   doc["log"]["vehicleEvents"] = config.logVehicleEvents;
   doc["log"]["rawData"] = config.logRawData;
   doc["log"]["lidar"] = config.logLidarEvents;
+  doc["log"]["debug"] = config.logDebugEvents;
+  
 
   doc["counter"]["population"] = config.counterPopulation;
   doc["counter"]["id"] = config.counterID;
@@ -473,7 +461,7 @@ void appendTextFile(const char *filename, String contents)
 {
 
   // Open file for writing
-  debugUART.println("    Opening file for write...");
+  //debugUART.println("    Opening file for write...");
   File file = SD.open(filename, FILE_APPEND);
 
   if (!file)
@@ -482,7 +470,7 @@ void appendTextFile(const char *filename, String contents)
     return;
   }
 
-  debugUART.println("    Writing file...");
+  //debugUART.println("    Writing file...");
   file.print(contents);
 
   // Close the file

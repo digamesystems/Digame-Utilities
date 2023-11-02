@@ -289,8 +289,8 @@ void displayCopyright()
   int16_t lineHeight = tbh + 0.2 * tbh;
   int16_t offset = display.height() - 3 * lineHeight - tbh/2;
 
-  centerPrint("HEIMDALL VCS Family", offset);
-  centerPrint("(c) 2022, Digame Systems.", offset + lineHeight);
+  centerPrint("DIGAME VCS Family", offset);
+  centerPrint("(c) 2023, Digame Systems.", offset + lineHeight);
   centerPrint("All rights reserved.", offset + 2 * lineHeight);
   displayUpdate();
 }
@@ -317,7 +317,6 @@ void displayRawText(String title, String s)
 void displayCenteredText(String title, String s1, String s2, String s3, String s4, String s5, String s6, String s7, String s8)
 //******************************************************************************************
 {
-  DEBUG_PRINTLN("Hello from DisplayCenteredText");
   displayTitle(title);  
   GxEPD2_GFX &display = getDisplay();
   display.setTextSize(2);

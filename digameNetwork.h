@@ -95,12 +95,11 @@ bool enableWiFi(Config config)
     WiFi.begin(ssid.c_str(), password.c_str()); // Log in
 
     bool timedout = false;
-    unsigned long wifiTimeout = 30000;
+    unsigned long wifiTimeout = 60000;
     unsigned long tstart = millis();
     DEBUG_PRINT("    ")
     while (WiFi.status() != WL_CONNECTED)
     {
-        //delay(1000);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
         DEBUG_PRINT(".");
         if ((millis() - tstart) > wifiTimeout)
@@ -120,10 +119,10 @@ bool enableWiFi(Config config)
     }
     else
     {
-        debugUART.println("");
-        debugUART.println("    WiFi connected.");
-        debugUART.print("    IP address: ");
-        debugUART.println(WiFi.localIP());
+        DEBUG_PRINTLN("");
+        DEBUG_PRINTLN("    WiFi connected.");
+        DEBUG_PRINT(  "    IP address: ");
+        DEBUG_PRINTLN(WiFi.localIP());
         wifiConnected = true;
 
         // Your Domain name with URL path or IP address with path
@@ -145,8 +144,8 @@ void disableWiFi()
     WiFi.disconnect(true);  // Disconnect from the network
     WiFi.mode(WIFI_OFF);    // Switch WiFi off
     //setCpuFrequencyMhz(40); // Drop cpu down to conserve power
-    debugUART.println("");
-    debugUART.println("WiFi disconnected!");
+    DEBUG_PRINTLN("");
+    DEBUG_PRINTLN("WiFi disconnected!");
     wifiConnected = false;
 }
 
@@ -156,75 +155,66 @@ void disableWiFi()
 bool postJSON(String jsonPayload, Config config)
 {
 
-    if (config.showDataStream == "false")
+    if (WiFi.status() != WL_CONNECTED) // If we're not connected to the wifi, try to connect.
     {
-        debugUART.print("postJSON Running on Core #: ");
-        debugUART.println(xPortGetCoreID());
-        // debugUART.print("Free Heap: ");
-        // debugUART.println(ESP.getFreeHeap());
-    }
-
-    if (WiFi.status() != WL_CONNECTED)
-    {
-        debugUART.println("WiFi not connected.");
+        DEBUG_PRINTLN("WiFi not connected.");
+        DEBUG_PRINTLN("Attempting to connect to WiFi."); 
+        DEBUG_LOG("WiFi not connected. Attempting to connect to WiFi.");
         if (enableWiFi(config) == false)
         {
-            return false;
+            DEBUG_PRINTLN("Unable to connect to WiFi.");
+            DEBUG_LOG("Unable to connect to WiFi. - Exiting postJSON().");            
+            return false; // If we can't connect to the WiFi, we can't POST.
         };
+        DEBUG_PRINTLN("WiFi connected. ");
+        DEBUG_LOG("WiFi connected. ");
+        restartWebServerFlag = true; // If we just connected to the wifi, we need to restart the web server. 
     }
 
     unsigned long t1 = millis();
 
+    // Create the http client object and set the headers to JSON
     http.begin(config.serverURL);
-
-    if (config.showDataStream == "false")
-    {
-        debugUART.print("JSON payload length: ");
-        debugUART.println(jsonPayload.length());
-        debugUART.print("HTTP begin Time: ");
-        debugUART.println(millis() - t1);
-    }
-
-    // If you need an HTTP request with a content type: application/json, use the following:
     http.addHeader("Content-Type", "application/json");
 
+    String strResult =      "Posting JSON to server..."; //+ config.serverURL + "\n";
+    strResult = strResult + " Payload length: " + String(jsonPayload.length()) + "\n";
+    //strResult = strResult + "HTTP POST Begin Time:   " + String(millis() - t1) + "\n";
+    
     t1 = millis();
     int httpResponseCode = http.POST(jsonPayload);
 
+    strResult = strResult + " POST Time:     " + String(millis() - t1) + "\n";
+    strResult = strResult + " Response code: " + String(httpResponseCode) + "\n";
+    
+    if (httpResponseCode != HTTP_CODE_OK)
+    {
+        strResult = strResult + "***** ERROR *****\n";
+        if (httpResponseCode == 404){
+            strResult = strResult + "404: Not Found\n";
+        } else {
+            strResult = strResult + http.errorToString(httpResponseCode) + "\n";
+        }
+
+        delay(3000); // Wait a bit before trying again.
+    }
+
     if (config.showDataStream == "false")
     {
-        debugUART.print("POST Time: ");
-        debugUART.println(millis() - t1);
-        debugUART.println("POSTing to Server:");
-        debugUART.println(jsonPayload);
-        debugUART.print("HTTP response code: ");
-        debugUART.println(httpResponseCode);
-        if (!(httpResponseCode == 200))
-        {
-            debugUART.println("*****ERROR*****");
-            debugUART.println(http.errorToString(httpResponseCode));
-        }
-        debugUART.println();
+        DEBUG_PRINTLN(strResult);
+        DEBUG_PRINTLN("Message to Server: ");
+        DEBUG_PRINTLN(jsonPayload);
     }
+
+    DEBUG_LOG(strResult);
+
     // Free resources
     http.end();
 
-    if (httpResponseCode == 200)
-    {
-        msLastPostTime = millis(); // Log the time of the last successful post
-        return true;
-    }
-    else
-    {
-        msLastPostTime = millis(); // Log the time of the last successful post
-        // TODO: verify this is the right approach. if we have a bunch of network
-        // errors, not setting msLastPostTime here, might cause us to put the wifi 
-        // to sleep over and over...
-
-        // LATER: -- If we have a mangled message, this will just send it over and over
-        // again. We need to figure out a way to detect that and stop trying to send it.
-        return false;
-    }
+    msLastPostTime = millis(); // Log the time of the last post attempt
+        
+    return (httpResponseCode == HTTP_CODE_OK);
+    
 }
 
 #endif //__DIGAME_NETWORK_H__

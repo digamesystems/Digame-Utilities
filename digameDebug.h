@@ -1,6 +1,7 @@
 #ifndef __DIGAME_DEBUG_H__
 #define __DIGAME_DEBUG_H__
 
+
 // Show debug messages.
 #define SHOW_DEBUG
 
@@ -15,5 +16,6 @@
   #define DEBUG_PRINT(...) {}
   #define DEBUG_PRINTLN(...) {}
 #endif
+
 
 #endif  // __DIGAME_DEBUG_H__
