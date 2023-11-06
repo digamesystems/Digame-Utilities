@@ -289,6 +289,8 @@ bool synchTimesToNTP()
 //****************************************************************************************
 {
 
+  struct tm timeinfo;
+
   DEBUG_PRINTLN("  Getting time from NTP Server... ");
 
   // The return value for the function
@@ -297,9 +299,18 @@ bool synchTimesToNTP()
   // Set the ESP32's internal RTC to NTP Time
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
+  if(!getLocalTime(&timeinfo)){
+    DEBUG_PRINTLN("  Failed to get time from NTP Server... ");
+    DEBUG_LOG("Failed to get time from NTP Server... ");
+    return false;
+  }
+
+  DEBUG_LOG("NTP Time obtained: " + getESPTime() );
+
   stringLocalTime = getESPTime();
   DEBUG_PRINT("    NTP Time: ");
   DEBUG_PRINTLN(stringLocalTime);
+   
 
   if (stringLocalTime != "Failed to obtain NTP time")
   {
@@ -307,9 +318,11 @@ bool synchTimesToNTP()
     if (rtcPresent())
     {
       DEBUG_PRINTLN("  Synchronizing RTC w/ NTP Time...");
+      DEBUG_LOG("Synchronizing RTC w/ NTP Time...");
       setRTCTime(); // Set the RTC to the NTP value we just got.
       DEBUG_PRINT("    Updated RTC Time: ");
       DEBUG_PRINTLN(getRTCTime());
+      DEBUG_LOG("Updated RTC Time: " + getRTCTime());
       return true;
     }
   }

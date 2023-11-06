@@ -12,6 +12,7 @@
 #include <WiFi.h>             // WiFi stack
 #include <HTTPClient.h>       // To post to the ParkData Server
 #include <digameJSONConfig.h> // for Config struct that holds network credentials
+#include <digameTime.h>       // for getRTCTime()
 
 #define debugUART Serial
 
@@ -177,7 +178,8 @@ bool postJSON(String jsonPayload, Config config)
     http.begin(config.serverURL);
     http.addHeader("Content-Type", "application/json");
 
-    String strResult =      "Posting JSON to server..."; //+ config.serverURL + "\n";
+    String strResult =      "Posting JSON to server...\n"; //+ config.serverURL + "\n";
+    strResult = strResult + " RTC Time: " + getRTCTime() + "\n";
     strResult = strResult + " Payload length: " + String(jsonPayload.length()) + "\n";
     //strResult = strResult + "HTTP POST Begin Time:   " + String(millis() - t1) + "\n";
     

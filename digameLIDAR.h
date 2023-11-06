@@ -18,7 +18,7 @@ int16_t initLIDARDist = 999; // The initial distance measured by the lidar when 
 
 const int lidarSamples = 25;
 
-CircularBuffer<int, lidarSamples> lidarBuffer; // We're going to hang onto the last 100 raw data
+CircularBuffer<int, lidarSamples> lidarBuffer; // We're going to hang onto the last 25 raw data
                                                //   points to visualize what the sensor sees
 
 CircularBuffer<int, 150> lidarHistoryBuffer;   // A longer buffer for visualization of the history
